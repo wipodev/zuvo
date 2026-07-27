@@ -1,0 +1,8 @@
+{
+  "cmd_install_help": "Instala todas las dependencias necesarias del entorno.",
+  "cmd_install_arg_dev_help": "Incluir dependencias de desarrollo",
+  "cmd_install_arg_help": "Incluir dependencias de desarrollo",
+  "cmd_create_help": "Crea un nuevo recurso en el espacio de trabajo del proyecto.",
+  "cmd_create_arg_name_help": "Nombre de destino del nuevo recurso.",
+  "cmd_create_arg_force_help": "Forzar la sobrescritura si el recurso de destino ya existe."
+}

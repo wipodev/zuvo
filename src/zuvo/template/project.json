@@ -1,0 +1,12 @@
+{
+  "name": "my-zuvo-cli",
+  "executable_name": "mycli",
+  "title": "My Zuvo CLI Application",
+  "version": "0.1.0",
+  "description": "CLI Application built with Zuvo Framework",
+  "author": "Developer Name",
+  "copyright": "© 2026 All rights reserved.",
+  "type": "standard",
+  "commands": ["install", "create"],
+  "files": ["assets/icon.ico"]
+}

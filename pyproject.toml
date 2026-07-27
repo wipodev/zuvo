@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "zuvo"
+version = "0.0.1.dev1"
+description = "Zero-boilerplate CLI framework with i18n and compilation support"
+readme = "README.md"
+authors = [{ name = "wipodev", email = "ajwipo@email.com" }]
+requires-python = ">=3.8"
+dependencies = [
+    "rich>=13.0.0",
+    "babel>=2.10.0",
+]
+
+[project.scripts]
+zuvo = "zuvo.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/zuvo"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/zuvo/template" = "zuvo/template"
