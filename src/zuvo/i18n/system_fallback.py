@@ -4,6 +4,54 @@ Guarantees base UI rendering in English if external JSON files are missing or co
 """
 
 SYSTEM_FALLBACK: dict[str, str] = {
+    # File System Errors
+    "fs_err_config_not_found": "Required configuration file not found at: {path}",
+
+    # Errores y Advertencias de Carga en main.py
+    "main_warn_cmd_module_not_found": "⚠️ Could not find module for command '{cmd}': {error}",
+    "main_warn_cmd_load_error": "⚠️ Error loading command '{cmd}': {error}",
+    "main_err_unrecognized_context": "❌ Context or module '{invoked_as}' not recognized.",
+    "main_warn_cmd_missing_run": "⚠️ Framework Warning: The command module '{cmd}' was ignored because it does not implement the required 'run(args)' function. All command modules must export 'run(args)' as the main entry point to be executed by the CLI.",
+
+    # Global Command & Argument Errors
+    "cli_error_args_title": "❌ Argument Error:",
+    "cli_error_cmd_not_found": "Command '{cmd}' does not exist or is not callable.",
+    "cli_error_execution": "❌ Failed to execute '{cmd}': {error}",
+    "cli_error_missing_run_fn": "Framework Error: The command module '{cmd}' does not implement the required 'run(args)' function.",
+
+    # Granular CLI Argument Errors
+    "err_missing_required_arg": "The following argument is required: {arg}",
+    "err_unknown_flag": "Unrecognized option or flag: {flag}",
+    "err_invalid_arg_type": "Invalid parameter value: {details}",
+    "err_ambiguous_arg": "Ambiguous option provided: {details}",
+    "err_generic_syntax": "Syntax error in command: {details}",
+
+    # System Commands: Help
+    "help_usage_title": "Usage:",
+    "help_usage_syntax_general": "{prog} <COMMAND> [OPTIONS]",
+    "help_usage_syntax_command": "{prog} {cmd} [OPTIONS]",
+    "help_header_commands": "📌 Available Commands:",
+    "help_header_options": "⚙️  Global Options:",
+    "help_col_command": "Command",
+    "help_col_option": "Option",
+    "help_col_description": "Description",
+    "help_opt_help_desc": "Show this interactive help message.",
+    "help_opt_version_desc": "Show application version and system component details.",
+    "help_no_description": "No description available.",
+    "help_usage_label": "Usage: ",
+    "help_example_label": "Example:",
+    "help_header_command_options": "Command Options:",
+    "help_required_tag": "(required)",
+    "help_panel_cmd_title": "📖 Help: {cmd}",
+    "help_col_option_flag": "Option / Flag",
+
+    # System Commands: Version
+    "version_prop_project": "Project",
+    "version_prop_executable": "Executable",
+    "version_prop_description": "Description",
+    "version_prop_author": "Author",
+    "version_prop_copyright": "Copyright",
+
     # examples Commands
     "cmd_install_help": "Installs all necessary environment dependencies.",
     "cmd_install_arg_dev_help": "Include development dependencies",
