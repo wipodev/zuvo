@@ -7,11 +7,16 @@ name = "zuvo"
 version = "0.0.1.dev1"
 description = "Zero-boilerplate CLI framework with i18n and compilation support"
 readme = "README.md"
-authors = [{ name = "wipodev", email = "ajwipo@email.com" }]
+authors = [{ name = "wipodev", email = "ajwipo@gmail.com" }]
 requires-python = ">=3.8"
 dependencies = [
-    "rich>=13.0.0",
-    "babel>=2.10.0",
+    "rich==15.0.0",
+    "babel==2.18.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
 ]
 
 [project.scripts]
