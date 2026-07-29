@@ -16,7 +16,17 @@ def _register_command_args(
     raw_argv: list[str],
 ) -> None:
     """Processes and injects a module's declarative ARGS list into the parser."""
+    valid_flags = {"-h", "--help", "-v", "--version"}
+    for arg in args_def:
+        valid_flags.update(arg.get("flags", []))
+
+    has_unknown_flag = any(
+        token.startswith("-") and token.split("=")[0] not in valid_flags 
+        for token in raw_argv
+    )
     is_asking_help = any(flag in raw_argv for flag in ("-h", "--help"))
+
+    should_relax_required = is_asking_help or has_unknown_flag
 
     for arg in args_def:
         flags = arg.get("flags", [])
@@ -24,7 +34,7 @@ def _register_command_args(
             continue
 
         arg_copy = arg.copy()
-        if is_asking_help and "required" in arg_copy:
+        if should_relax_required and "required" in arg_copy:
             arg_copy["required"] = False
 
         kwargs = {k: v for k, v in arg_copy.items() if k != "flags"}

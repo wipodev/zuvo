@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cli_test"
+version = "0.1.0"
+description = "test project"
+authors = [
+    { name = "WipoDev" }
+]
+
+# ==============================================================================
+# CONFIGURACIÓN EXCLUSIVA DE ZUVO
+# ==============================================================================
+
+[tool.zuvo]
+type = "standar"
+title = "Python CLI Test"
+executable_name = "cli_test"
+copyright = "© 2026 WipoDev. All Rights Reserved."
+main = "src/app/main.py"
+commands_dir = "src/app/commands"
+locales_dir = "locales"
+
+files = [
+    "assets/icon.ico"
+]
+
+# En modo standar se agrupan los comandos bajo la clave 'default'
+[tool.zuvo.commands]
+default = ["install", "create"]
+
+# Scripts ejecutables mediante `zuvo run <nombre>`
+[tool.zuvo.scripts]
+dev = "python src/app/main.py"
+test = "pytest"
