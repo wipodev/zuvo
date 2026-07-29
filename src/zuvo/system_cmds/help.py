@@ -3,10 +3,10 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from zuvo.core import project
+from zuvo.core import config
 from zuvo.i18n import t
 
-console = Console()
+_default_console = Console()
 
 
 def _get_clean_doc(cmd_module: object) -> str:
@@ -14,16 +14,16 @@ def _get_clean_doc(cmd_module: object) -> str:
     help_attr = getattr(cmd_module, "HELP", None)
     if help_attr:
         return t(str(help_attr).strip())
-    
+
     doc = None
     if hasattr(cmd_module, "run"):
         doc = getattr(cmd_module.run, "__doc__", None)
     if not doc:
         doc = getattr(cmd_module, "__doc__", None)
-        
+
     if not doc:
         return t("help_no_description")
-    
+
     return str(doc).strip()
 
 
@@ -60,23 +60,23 @@ def _build_general_header_panel(invoked_as: str) -> Panel:
     content.append(t("help_usage_label"), style="bold white")
     syntax_text = t("help_usage_syntax_general", prog=invoked_as)
     content.append(f"{syntax_text}\n", style="bold gold1")
-    
-    if getattr(project, "DESCRIPTION", None):
-        content.append(f"\n{project.DESCRIPTION}", style="dim")
 
-    panel_title = f"[bold magenta]🚀 {getattr(project, 'TITLE', 'CLI')}[/bold magenta]"
-    panel_subtitle = f"[italic gray]v{getattr(project, 'VERSION', '0.0.0')}[/italic gray]"
+    if getattr(config, "DESCRIPTION", None):
+        content.append(f"\n{config.DESCRIPTION}", style="dim")
+
+    panel_title = f"[bold magenta]🚀 {getattr(config, 'TITLE', 'CLI')}[/bold magenta]"
+    panel_subtitle = f"[italic gray]v{getattr(config, 'VERSION', '0.0.0')}[/italic gray]"
 
     return Panel(
         content,
         title=panel_title,
         subtitle=panel_subtitle,
         border_style="magenta",
-        expand=False
+        expand=False,
     )
 
 
-def _show_general_help(commands_map: dict, invoked_as: str) -> None:
+def _show_general_help(commands_map: dict, invoked_as: str, console: Console) -> None:
     """Renders the general CLI help menu."""
     console.print()
     console.print(_build_general_header_panel(invoked_as))
@@ -103,11 +103,11 @@ def _build_command_options_table(args_def: list[dict]) -> Table:
         flags = ", ".join(arg.get("flags", []))
         help_raw = arg.get("help")
         help_text = t(help_raw) if help_raw else t("help_no_description")
-        
+
         if arg.get("required"):
             required_tag = t("help_required_tag")
             help_text += f" [bold red]{required_tag}[/bold red]"
-            
+
         table.add_row(flags, help_text)
 
     return table
@@ -141,7 +141,7 @@ def _generate_command_example(cmd_name: str, args_def: list[dict], invoked_as: s
     return " ".join(tokens)
 
 
-def _show_command_help(cmd_name: str, cmd_module: object, invoked_as: str) -> None:
+def _show_command_help(cmd_name: str, cmd_module: object, invoked_as: str, console: Console) -> None:
     """Renders detailed help for a specific subcommand."""
     doc = _get_clean_doc(cmd_module)
     args_def = getattr(cmd_module, "ARGS", [])
@@ -155,12 +155,14 @@ def _show_command_help(cmd_name: str, cmd_module: object, invoked_as: str) -> No
     panel_title = t("help_panel_cmd_title", cmd=cmd_name)
 
     console.print()
-    console.print(Panel(
-        content,
-        title=f"[bold magenta]{panel_title}[/bold magenta]",
-        border_style="magenta",
-        expand=False
-    ))
+    console.print(
+        Panel(
+            content,
+            title=f"[bold magenta]{panel_title}[/bold magenta]",
+            border_style="magenta",
+            expand=False,
+        )
+    )
 
     if args_def:
         console.print(f"\n[bold cyan]{t('help_header_command_options')}[/bold cyan]")
@@ -173,17 +175,19 @@ def _show_command_help(cmd_name: str, cmd_module: object, invoked_as: str) -> No
 
 # --- Main Orchestrator ---
 
-def run(args=None) -> None:
+def run(args=None, console: Console | None = None) -> None:
     """Main help orchestrator."""
+    out = console or _default_console
+
     commands_map = getattr(args, "_commands_map", {})
-    invoked_as = getattr(args, "_invoked_as", getattr(project, "EXECUTABLE_NAME", "app"))
+    invoked_as = getattr(args, "_invoked_as", getattr(config, "EXECUTABLE_NAME", "app"))
     target_cmd = getattr(args, "_target_cmd", None)
     subcmd_name = getattr(args, "subcommand", None)
 
     if target_cmd:
         if not subcmd_name:
             subcmd_name = getattr(target_cmd, "NAME", None)
-            
-        _show_command_help(subcmd_name, target_cmd, invoked_as)
+
+        _show_command_help(subcmd_name, target_cmd, invoked_as, out)
     else:
-        _show_general_help(commands_map, invoked_as)
+        _show_general_help(commands_map, invoked_as, out)
