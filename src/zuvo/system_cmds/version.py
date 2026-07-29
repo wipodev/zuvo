@@ -1,22 +1,24 @@
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.rule import Rule
 
-from zuvo.core import config
+from zuvo.core.config import Config, get_config
 from zuvo.i18n import t
 
 _default_console = Console()
 
 
-def run(args=None, console: Console | None = None) -> None:
+def run(args=None, console: Console | None = None, config: Config | None = None) -> None:
     """
     Displays the project version and metadata report using Rich for formatted output.
     """
     out = console or _default_console
+    cfg = config or get_config()
 
     header_text = (
-        f"[bold magenta]{config.TITLE}[/bold magenta] "
-        f"[bold green]v{config.VERSION}[/bold green]"
+        f"[bold magenta]{cfg.title}[/bold magenta] "
+        f"[bold green]v{cfg.version}[/bold green]"
     )
 
     out.print()
@@ -26,19 +28,18 @@ def run(args=None, console: Console | None = None) -> None:
     table.add_column("Property", style="bold cyan")
     table.add_column("Value")
 
-    table.add_row(t("version_prop_project"), config.NAME)
-    table.add_row(t("version_prop_executable"), config.EXECUTABLE_NAME)
+    table.add_row(t("version_prop_project"), cfg.name)
+    table.add_row(t("version_prop_executable"), cfg.executable_name)
 
-    if config.DESCRIPTION:
-        table.add_row(t("version_prop_description"), config.DESCRIPTION)
+    if cfg.description:
+        table.add_row(t("version_prop_description"), cfg.description)
 
-    if config.AUTHOR:
-        table.add_row(t("version_prop_author"), f"[dim]{config.AUTHOR}[/dim]")
+    if cfg.author:
+        table.add_row(t("version_prop_author"), f"[dim]{cfg.author}[/dim]")
 
-    if config.COPYRIGHT:
-        table.add_row(t("version_prop_copyright"), f"[dim]{config.COPYRIGHT}[/dim]")
+    if cfg.copyright:
+        table.add_row(t("version_prop_copyright"), f"[dim]{cfg.copyright}[/dim]")
 
     out.print(table)
-    out.print(
-        "\n[dim]----------------------------------------------------------------------[/dim]\n"
-    )
+    
+    out.print(Rule(style="dim"))

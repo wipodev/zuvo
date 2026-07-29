@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from rich.console import Console
 
 from zuvo.system_cmds.help import run, _get_clean_doc
-from zuvo.core import config
+from zuvo.core.config import Config
 
 
 class DummySubCommand:
@@ -25,8 +25,10 @@ class TestHelpCommand:
 
     def test_show_general_help(self, monkeypatch):
         """Verify that run() renders general help menu when no target_cmd is specified."""
-        monkeypatch.setattr(config, "TITLE", "Zuvo Test")
-        monkeypatch.setattr(config, "VERSION", "1.0.0")
+        mock_config = Config(
+            title="Zuvo Test",
+            version="1.0.0",
+        )
 
         test_console = Console(record=True, width=100)
         args = SimpleNamespace(
@@ -35,7 +37,7 @@ class TestHelpCommand:
             _target_cmd=None,
         )
 
-        run(args=args, console=test_console)
+        run(args=args, console=test_console, config=mock_config)
 
         output = test_console.export_text()
 
@@ -54,7 +56,9 @@ class TestHelpCommand:
             subcommand="my_subcmd",
         )
 
-        run(args=args, console=test_console)
+        mock_config = Config()
+
+        run(args=args, console=test_console, config=mock_config)
 
         output = test_console.export_text()
 

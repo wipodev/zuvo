@@ -2,6 +2,7 @@ import argparse
 import sys
 from rich.console import Console
 
+from zuvo.core.config import Config, get_config
 from zuvo.core.errors import ExitCode, handle_cli_error
 from zuvo.i18n import t
 from zuvo.system_cmds import help as sys_help
@@ -82,21 +83,22 @@ def _build_parser(
     return parser
 
 
-def _handle_global_flags(args: argparse.Namespace, console: Console | None = None) -> bool:
+def _handle_global_flags(args: argparse.Namespace, console: Console | None = None, config: Config | None = None) -> bool:
     """
     Intercepts global flags or commands such as help and version.
     Returns True if the request was processed and interrupted the normal flow.
     """
     out = console or _default_console
+    cfg = config or get_config()
 
     # 1. Version Interception
     if args.version or args.subcommand == "version":
-        sys_version.run(args, console=out)
+        sys_version.run(args, console=out, config=cfg)
         sys.exit(int(ExitCode.SUCCESS))
 
     # 2. General Help Interception
     if (args.help and not args.subcommand) or args.subcommand == "help" or not args.subcommand:
-        sys_help.run(args, console=out)
+        sys_help.run(args, console=out, config=cfg)
         sys.exit(int(ExitCode.SUCCESS))
 
     return False
@@ -106,12 +108,14 @@ def _dispatch_command(
     args: argparse.Namespace,
     commands_map: dict[str, object],
     console: Console | None = None,
+    config: Config | None = None
 ) -> None:
     """Dispatches execution to the corresponding subcommand."""
     out = console or _default_console
     selected_cmd = commands_map.get(args.subcommand)
 
     if selected_cmd and not (hasattr(selected_cmd, "run") and callable(selected_cmd.run)):
+        cfg = config or get_config()
         err_msg = t("cli_error_missing_run_fn", cmd=args.subcommand)
         handle_cli_error(
             raw_message=err_msg,
@@ -119,6 +123,7 @@ def _dispatch_command(
             invoked_as=getattr(args, "_invoked_as", "app"),
             code_override=ExitCode.INVALID_COMMAND_MODULE,
             console=out,
+            config=cfg
         )
 
     # If explicit help was requested for a subcommand (e.g., app create -h)
@@ -140,9 +145,11 @@ def build_parser_and_run(
     invoked_as: str,
     argv: list[str] | None = None,
     console: Console | None = None,
+    config: Config | None = None
 ) -> None:
     """Main orchestrator of the CLI lifecycle."""
     raw_argv = argv if argv is not None else sys.argv[1:]
+    cfg = config or get_config()
     parser = _build_parser(commands_map, invoked_as, raw_argv, console=console)
 
     try:
@@ -153,5 +160,5 @@ def build_parser_and_run(
     setattr(args, "_commands_map", commands_map)
     setattr(args, "_invoked_as", invoked_as)
 
-    _handle_global_flags(args, console=console)
-    _dispatch_command(args, commands_map, console=console)
+    _handle_global_flags(args, console=console, config=cfg)
+    _dispatch_command(args, commands_map, console=console, config=cfg)

@@ -1,26 +1,27 @@
 from rich.console import Console
 from zuvo.system_cmds.version import run
-from zuvo.core import config
+from zuvo.core.config import Config
 
 
 class TestVersionCommand:
     """Test suite for the version CLI command."""
 
-    def test_run_command_outputs_metadata(self, monkeypatch):
+    def test_run_command_outputs_metadata(self):
         """Verify that run() renders the project metadata correctly on the console."""
-        # Simular metadatos en config
-        monkeypatch.setattr(config, "TITLE", "Zuvo Test")
-        monkeypatch.setattr(config, "VERSION", "1.2.3")
-        monkeypatch.setattr(config, "NAME", "zuvo-test")
-        monkeypatch.setattr(config, "EXECUTABLE_NAME", "zuvo_cli")
-        monkeypatch.setattr(config, "DESCRIPTION", "Test description")
-        monkeypatch.setattr(config, "AUTHOR", "Developer")
-        monkeypatch.setattr(config, "COPYRIGHT", "2026 Zuvo")
+        mock_config = Config(
+            title="Zuvo Test",
+            version="1.2.3",
+            name="zuvo-test",
+            executable_name="zuvo_cli",
+            description="Test description",
+            author="Developer",
+            copyright="2026 Zuvo",
+        )
 
         # Usar una consola en memoria para capturar la salida de Rich
         test_console = Console(record=True, width=100)
         
-        run(console=test_console)
+        run(console=test_console, config=mock_config)
         
         output = test_console.export_text()
 

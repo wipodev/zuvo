@@ -3,7 +3,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from zuvo.core import config
+from zuvo.core.config import Config, get_config
 from zuvo.i18n import t
 
 _default_console = Console()
@@ -54,18 +54,20 @@ def _build_global_options_table() -> Table:
     return options_table
 
 
-def _build_general_header_panel(invoked_as: str) -> Panel:
+def _build_general_header_panel(invoked_as: str, cfg: Config | None = None) -> Panel:
     """Constructs the top welcome/usage panel for general CLI help."""
+    cfg = cfg or get_config()
+
     content = Text()
     content.append(t("help_usage_label"), style="bold white")
     syntax_text = t("help_usage_syntax_general", prog=invoked_as)
     content.append(f"{syntax_text}\n", style="bold gold1")
 
-    if getattr(config, "DESCRIPTION", None):
-        content.append(f"\n{config.DESCRIPTION}", style="dim")
+    if cfg.description:
+        content.append(f"\n{cfg.description}", style="dim")
 
-    panel_title = f"[bold magenta]🚀 {getattr(config, 'TITLE', 'CLI')}[/bold magenta]"
-    panel_subtitle = f"[italic gray]v{getattr(config, 'VERSION', '0.0.0')}[/italic gray]"
+    panel_title = (f"[bold magenta]🚀 {cfg.title or 'CLI'}[/bold magenta]")
+    panel_subtitle = (f"[italic gray]v{cfg.version or '0.0.0'}[/italic gray]")
 
     return Panel(
         content,
@@ -76,10 +78,10 @@ def _build_general_header_panel(invoked_as: str) -> Panel:
     )
 
 
-def _show_general_help(commands_map: dict, invoked_as: str, console: Console) -> None:
+def _show_general_help(commands_map: dict, invoked_as: str, console: Console, cfg: Config | None = None) -> None:
     """Renders the general CLI help menu."""
     console.print()
-    console.print(_build_general_header_panel(invoked_as))
+    console.print(_build_general_header_panel(invoked_as, cfg=cfg))
 
     console.print(f"\n[bold cyan]{t('help_header_commands')}[/bold cyan]")
     console.print(_build_commands_table(commands_map))
@@ -175,12 +177,13 @@ def _show_command_help(cmd_name: str, cmd_module: object, invoked_as: str, conso
 
 # --- Main Orchestrator ---
 
-def run(args=None, console: Console | None = None) -> None:
+def run(args=None, console: Console | None = None, config: Config | None = None) -> None:
     """Main help orchestrator."""
     out = console or _default_console
+    cfg = config or get_config()
 
     commands_map = getattr(args, "_commands_map", {})
-    invoked_as = getattr(args, "_invoked_as", getattr(config, "EXECUTABLE_NAME", "app"))
+    invoked_as = getattr(args, "_invoked_as", cfg.executable_name or "app")
     target_cmd = getattr(args, "_target_cmd", None)
     subcmd_name = getattr(args, "subcommand", None)
 
@@ -190,4 +193,4 @@ def run(args=None, console: Console | None = None) -> None:
 
         _show_command_help(subcmd_name, target_cmd, invoked_as, out)
     else:
-        _show_general_help(commands_map, invoked_as, out)
+        _show_general_help(commands_map, invoked_as, out, cfg)

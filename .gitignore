@@ -10,3 +10,4 @@ Output/
 *.egg-info/
 *.egg
 /sandbox/
+/.pytest_cache/

@@ -27,3 +27,11 @@ packages = ["src/zuvo"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "src/zuvo/template" = "zuvo/template"
+
+[tool.zuvo]
+type = "standar"
+title = "Zuvo Framework"
+commands_dir = "src/zuvo/commands"
+
+[tool.zuvo.commands]
+default = ["init", "run"]

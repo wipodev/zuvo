@@ -1,0 +1,53 @@
+{
+  "fs_err_config_not_found": "Archivo de configuración requerido no encontrado en: {path}",
+
+  "main_warn_cmd_module_not_found": "⚠️ No se pudo encontrar el módulo para el comando '{cmd}': {error}",
+  "main_warn_cmd_load_error": "⚠️ Error al cargar el comando '{cmd}': {error}",
+  "main_err_unrecognized_context": "❌ Contexto o módulo '{invoked_as}' no reconocido.",
+  "main_warn_cmd_missing_run": "⚠️ Advertencia del Framework: El comando '{cmd}' fue ignorado porque no implementa la función obligatoria 'run(args)'. Todo módulo de comando debe exportar 'run(args)' como punto de entrada principal para poder ser ejecutado por la CLI.",
+
+  "cli_error_args_title": "❌ Error de Argumentos:",
+  "cli_error_cmd_not_found": "El comando '{cmd}' no existe o no es ejecutable.",
+  "cli_error_execution": "❌ Falló la ejecución de '{cmd}': {error}",
+  "cli_error_missing_run_fn": "Error de Framework: El módulo del comando '{cmd}' no implementa la función obligatoria 'run(args)'.",
+
+  "err_missing_required_arg": "El siguiente argumento es obligatorio: {arg}",
+  "err_unknown_flag": "Opción o flag no reconocida: {flag}",
+  "err_invalid_arg_type": "Valor de parámetro no válido: {details}",
+  "err_ambiguous_arg": "Se proporcionó una opción ambigua: {details}",
+  "err_generic_syntax": "Error de sintaxis en el comando: {details}",
+
+  "help_usage_title": "Uso:",
+  "help_usage_syntax_general": "{prog} <COMANDO> [OPCIONES]",
+  "help_usage_syntax_command": "{prog} {cmd} [OPCIONES]",
+  "help_header_commands": "📌 Comandos Disponibles:",
+  "help_header_options": "⚙️  Opciones Globales:",
+  "help_col_command": "Comando",
+  "help_col_option": "Opción",
+  "help_col_description": "Descripción",
+  "help_opt_help_desc": "Muestra este mensaje de ayuda interactivo.",
+  "help_opt_version_desc": "Muestra la versión de la aplicación y detalles del sistema.",
+  "help_no_description": "Sin descripción disponible.",
+  "help_usage_label": "Uso: ",
+  "help_example_label": "Ejemplo:",
+  "help_header_command_options": "Opciones del Comando:",
+  "help_required_tag": "(requerido)",
+  "help_panel_cmd_title": "📖 Ayuda: {cmd}",
+  "help_col_option_flag": "Opción / Flag",
+
+  "version_prop_project": "Proyecto",
+  "version_prop_executable": "Ejecutable",
+  "version_prop_description": "Descripción",
+  "version_prop_author": "Autor",
+  "version_prop_copyright": "Copyright",
+
+  "cmd_install_help": "Instala todas las dependencias necesarias del entorno.",
+  "cmd_install_arg_dev_help": "Incluir dependencias de desarrollo",
+  "cmd_install_arg_help": "Incluir dependencias de desarrollo",
+  "cmd_create_help": "Crea un nuevo recurso en el espacio de trabajo del proyecto.",
+  "cmd_create_arg_name_help": "Nombre de destino del nuevo recurso.",
+  "cmd_create_arg_force_help": "Forzar la sobrescritura si el recurso de destino ya existe.",
+
+  "cmd_init_help": "Inicializa un nuevo proyecto Zuvo y genera el archivo pyproject.toml.",
+  "cmd_init_arg_yes_help": "Genera pyproject.toml con valores por defecto sin realizar preguntas."
+}

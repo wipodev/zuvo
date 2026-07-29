@@ -1,6 +1,7 @@
 import pytest
 from rich.console import Console
 
+from zuvo.core.config import Config
 from zuvo.core.errors import ExitCode, handle_cli_error, parse_argparse_error
 
 
@@ -45,6 +46,7 @@ class TestHandleCliError:
                 commands_map={},
                 invoked_as="zuvo",
                 console=test_console,
+                config=Config()
             )
 
         assert exc_info.value.code == ExitCode.UNKNOWN_FLAG
@@ -62,6 +64,7 @@ class TestHandleCliError:
                 invoked_as="zuvo",
                 code_override=ExitCode.COMMAND_EXECUTION_ERROR,
                 console=test_console,
+                config=Config()
             )
 
         assert exc_info.value.code == ExitCode.COMMAND_EXECUTION_ERROR

@@ -1,6 +1,7 @@
 import pytest
 from rich.console import Console
 
+from zuvo.core.config import Config
 from zuvo.core.errors import ExitCode
 from zuvo.core.runner import build_parser_and_run
 
@@ -37,6 +38,7 @@ class TestRunnerLifecycle:
                 invoked_as="zuvo",
                 argv=["-v"],
                 console=test_console,
+                config=Config()
             )
 
         assert exc_info.value.code == ExitCode.SUCCESS
@@ -51,6 +53,7 @@ class TestRunnerLifecycle:
                 invoked_as="zuvo",
                 argv=["--help"],
                 console=test_console,
+                config=Config()
             )
 
         assert exc_info.value.code == ExitCode.SUCCESS
@@ -63,6 +66,7 @@ class TestRunnerLifecycle:
             commands_map={"demo": DummyValidCommand},
             invoked_as="zuvo",
             argv=["demo", "--name", "Test"],
+            config=Config()
         )
 
         assert DummyValidCommand.executed is True
@@ -77,6 +81,7 @@ class TestRunnerLifecycle:
                 invoked_as="zuvo",
                 argv=["broken"],
                 console=test_console,
+                config=Config()
             )
 
         assert exc_info.value.code == ExitCode.INVALID_COMMAND_MODULE

@@ -4,6 +4,7 @@ from argparse import Namespace
 from enum import IntEnum
 from rich.console import Console
 
+from zuvo.core.config import Config, get_config
 from zuvo.system_cmds import help as sys_help
 from zuvo.i18n import t
 
@@ -93,6 +94,7 @@ def handle_cli_error(
     invoked_as: str,
     code_override: ExitCode | None = None,
     console: Console | None = None,
+    config: Config | None = None
 ) -> None:
     """
     Intercepts parser/execution errors, renders contextual help
@@ -120,7 +122,8 @@ def handle_cli_error(
         setattr(dummy_args, "_target_cmd", commands_map[detected_subcmd])
 
     # 3. Print styled help via help.py (passing the custom console out)
-    sys_help.run(dummy_args, console=out)
+    cfg = config or get_config()
+    sys_help.run(dummy_args, console=out, config=cfg)
 
     # 4. Print clean, internationalized error message to stderr
     title = t("cli_error_args_title")

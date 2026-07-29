@@ -40,7 +40,6 @@ class Config:
     files: list[str] = field(default_factory=list)
     commands_config: dict[str, list[str]] = field(default_factory=dict)
     scripts: dict[str, str] = field(default_factory=dict)
-    modules: list[str] = field(default_factory=list)
 
     @classmethod
     def load(cls, project_root: Path | str | None = None) -> "Config":
@@ -89,30 +88,20 @@ class Config:
             files=zuvo.get("files", []),
             commands_config=zuvo.get("commands", {}),
             scripts=zuvo.get("scripts", {}),
-            modules=zuvo.get("modules", []),
         )
 
-
 # ---------------------------------------------------------------------------
-# Instancia activa e Interfaz de Constantes Globales
+# CENTRAL REGISTRY (Passive Warehouse)
 # ---------------------------------------------------------------------------
-PROJECT_ROOT: Path = get_root_dir()
+_instance: Config | None = None
 
-# Carga inicial por defecto
-_current_config = Config.load(PROJECT_ROOT)
+def set_config(config: Config) -> None:
+    """Guarda la instancia explícita cargada en el punto de entrada."""
+    global _instance
+    _instance = config
 
-NAME: str = _current_config.name
-VERSION: str = _current_config.version
-DESCRIPTION: str = _current_config.description
-AUTHOR: str = _current_config.author
-
-APP_TYPE: str = _current_config.app_type
-TITLE: str = _current_config.title
-EXECUTABLE_NAME: str = _current_config.executable_name
-COPYRIGHT: str = _current_config.copyright
-ENTRY_POINT: str = _current_config.entry_point
-COMMANDS_PKG: str = _current_config.commands_pkg
-LOCALES_DIR: Path = _current_config.locales_dir
-FILES: list[str] = _current_config.files
-COMMANDS_CONFIG: dict[str, list[str]] = _current_config.commands_config
-SCRIPTS: dict[str, str] = _current_config.scripts
+def get_config() -> Config:
+    """Obtiene la instancia activa desde cualquier módulo."""
+    if _instance is None:
+        raise RuntimeError("La configuración no ha sido inicializada con set_config().")
+    return _instance

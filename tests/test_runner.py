@@ -1,6 +1,7 @@
 import pytest
 from rich.console import Console
 
+from zuvo.core.config import Config
 from zuvo.core.errors import ExitCode
 from zuvo.core.runner import get_invocation_name, load_command_modules, run_app
 
@@ -33,11 +34,12 @@ class TestRunnerBootstrapper:
     def test_run_app_invalid_module_context_exits(self, monkeypatch):
         test_console = Console(record=True, width=100)
 
-        # Force APP_TYPE='module' to test context checking
-        monkeypatch.setattr("zuvo.core.runner.APP_TYPE", "module")
-        monkeypatch.setattr("zuvo.core.runner.COMMANDS_CONFIG", {"valid_ctx": []})
+        mock_config = Config(
+            app_type="module",
+            commands_config={"valid_ctx": []},
+        )
 
         with pytest.raises(SystemExit) as exc_info:
-            run_app(argv=["--help"], console=test_console)
+            run_app(argv=["--help"], console=test_console, config=mock_config)
 
         assert exc_info.value.code == ExitCode.UNKNOWN_CONTEXT
