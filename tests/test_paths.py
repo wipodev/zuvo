@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from zuvo.utils.paths import get_root_dir
+from zuvo.utils.paths import get_root_dir, to_pkg_path
 
 
 class TestGetRootDir:
@@ -79,3 +79,8 @@ class TestGetRootDir:
         assert root_dir.exists()
         assert root_dir.is_dir()
         assert root_dir == Path.cwd().resolve()
+
+    def test_to_pkg_path_conversion(self):
+            """Verify converting filesystem paths to Python package paths."""
+            assert to_pkg_path("src/app/commands") == "src.app.commands"
+            assert to_pkg_path("src\\app\\commands") == "src.app.commands"

@@ -1,15 +1,10 @@
 import pytest
 from pathlib import Path
-from zuvo.core.config import Config, _to_pkg_path, set_config, get_config, _instance
+from zuvo.core.config import Config, set_config, get_config
 
 
 class TestConfig:
     """Test suite for configuration loading."""
-
-    def test_to_pkg_path_conversion(self):
-        """Verify converting filesystem paths to Python package paths."""
-        assert _to_pkg_path("src/app/commands") == "src.app.commands"
-        assert _to_pkg_path("src\\app\\commands") == "src.app.commands"
 
     def test_default_config_when_file_missing(self, tmp_path: Path):
         """Verify default configuration values when pyproject.toml is missing."""

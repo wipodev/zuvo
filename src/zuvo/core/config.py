@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from zuvo.utils.paths import get_root_dir
+from zuvo.utils.paths import get_root_dir, to_pkg_path
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -12,12 +12,6 @@ else:
         import tomli as tomllib
     except ImportError:
         tomllib = None
-
-
-def _to_pkg_path(path_str: str) -> str:
-    """Converts a filesystem style path 'src/app/commands' to a package 'src.app.commands'."""
-    clean = path_str.replace("\\", "/").strip("/")
-    return clean.replace("/", ".")
 
 
 @dataclass
@@ -111,7 +105,7 @@ class Config:
             executable_name=zuvo.get("executable_name", name),
             copyright=zuvo.get("copyright", ""),
             entry_point=zuvo.get("main", "src/app/main.py"),
-            commands_pkg=_to_pkg_path(raw_commands_dir),
+            commands_pkg=to_pkg_path(raw_commands_dir),
             locales_dir=root / raw_locales_dir,
             files=zuvo.get("files", []),
             commands_config=zuvo.get("commands", {}),
