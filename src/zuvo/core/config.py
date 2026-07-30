@@ -1,6 +1,7 @@
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from zuvo.utils.paths import get_root_dir
 
@@ -40,6 +41,33 @@ class Config:
     files: list[str] = field(default_factory=list)
     commands_config: dict[str, list[str]] = field(default_factory=dict)
     scripts: dict[str, str] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Converts config instance into a dictionary suitable for codegen."""
+        return {
+            "name": self.name,
+            "version": self.version,
+            "description": self.description,
+            "author": self.author,
+            "app_type": self.app_type,
+            "title": self.title,
+            "executable_name": self.executable_name,
+            "copyright": self.copyright,
+            "entry_point": self.entry_point,
+            "commands_pkg": self.commands_pkg,
+            "locales_dir": str(self.locales_dir),
+            "files": self.files,
+            "commands_config": self.commands_config,
+            "scripts": self.scripts,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Config":
+        """Reconstructs a Config instance from a dictionary."""
+        data_copy = data.copy()
+        if "locales_dir" in data_copy:
+            data_copy["locales_dir"] = Path(data_copy["locales_dir"])
+        return cls(**data_copy)
 
     @classmethod
     def load(cls, project_root: Path | str | None = None) -> "Config":

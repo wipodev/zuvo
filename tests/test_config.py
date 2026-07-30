@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from zuvo.core.config import Config, _to_pkg_path
+from zuvo.core.config import Config, _to_pkg_path, set_config, get_config, _instance
 
 
 class TestConfig:
@@ -54,3 +54,54 @@ class TestConfig:
 
         assert config.name == "cli-app"
         assert config.version == "0.0.1"
+
+    def test_to_dict_serialization(self):
+        """Verify serializing a Config instance into a dictionary."""
+        config = Config(
+            name="dict-app",
+            version="1.0.0",
+            locales_dir=Path("custom_locales"),
+            commands_config={"default": ["build", "run"]},
+        )
+
+        dict_data = config.to_dict()
+
+        assert isinstance(dict_data, dict)
+        assert dict_data["name"] == "dict-app"
+        assert dict_data["version"] == "1.0.0"
+        assert dict_data["locales_dir"] == "custom_locales"  # Should be converted to str
+        assert dict_data["commands_config"] == {"default": ["build", "run"]}
+
+    def test_from_dict_deserialization(self):
+        """Verify reconstructing a Config instance from a dictionary."""
+        raw_dict = {
+            "name": "restored-app",
+            "version": "3.0.0",
+            "locales_dir": "restored_locales",
+            "commands_pkg": "src.commands",
+            "app_type": "module",
+        }
+
+        config = Config.from_dict(raw_dict)
+
+        assert isinstance(config, Config)
+        assert config.name == "restored-app"
+        assert config.version == "3.0.0"
+        assert isinstance(config.locales_dir, Path)  # Should be converted back to Path
+        assert config.locales_dir == Path("restored_locales")
+        assert config.app_type == "module"
+
+    def test_global_registry_set_and_get(self):
+        """Verify setting and retrieving global config instance."""
+        custom_config = Config(name="global-app")
+        set_config(custom_config)
+
+        assert get_config() is custom_config
+        assert get_config().name == "global-app"
+
+    def test_get_config_raises_runtime_error_when_uninitialized(self, monkeypatch):
+        """Verify RuntimeError is raised if get_config is called before set_config."""
+        monkeypatch.setattr("zuvo.core.config._instance", None)
+
+        with pytest.raises(RuntimeError, match="La configuración no ha sido inicializada"):
+            get_config()
