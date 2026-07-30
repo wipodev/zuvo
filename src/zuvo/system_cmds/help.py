@@ -183,7 +183,7 @@ def run(args=None, console: Console | None = None, config: Config | None = None)
     cfg = config or get_config()
 
     commands_map = getattr(args, "_commands_map", {})
-    invoked_as = getattr(args, "_invoked_as", cfg.executable_name or "app")
+    invoked_as = getattr(args, "_invoked_as", cfg.cli_name or "app")
     target_cmd = getattr(args, "_target_cmd", None)
     subcmd_name = getattr(args, "subcommand", None)
 

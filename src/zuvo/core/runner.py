@@ -29,7 +29,7 @@ def get_invocation_name(argv_0: str | None = None, fallback: str = "app") -> str
     source = argv_0 if argv_0 is not None else (sys.argv[0] if sys.argv else "")
     raw_name = Path(source).stem if source else fallback
 
-    if raw_name in ("__main__", "main", ""):
+    if raw_name in ("__main__", "main", "-c", ""):
         return fallback
     return raw_name
 
@@ -100,7 +100,7 @@ def run_app(
     if target_locales and target_locales.exists():
         i18n.set_locale_dir(target_locales)
 
-    invoked_as = get_invocation_name(argv_0, cfg.executable_name)
+    invoked_as = get_invocation_name(argv_0, cfg.cli_name)
 
     if cfg.app_type == "module":
         if invoked_as in cfg.commands_config:

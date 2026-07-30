@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from zuvo.utils.paths import get_root_dir, to_pkg_path
+from zuvo.utils.paths import get_root_dir, resolve_entry_point, to_pkg_path
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -24,17 +24,38 @@ class Config:
     description: str = ""
     author: str = ""
 
-    # Zuvo metadata
+    # Zuvo runtime metadata
     app_type: str = "standard"
     title: str = "cli-app"
-    executable_name: str = "cli-app"
-    copyright: str = ""
-    entry_point: str = "src/app/main.py"
-    commands_pkg: str = "src.app.commands"
+    cli_name: str = "cli-app"
+    commands_pkg: str = "app.commands"
     locales_dir: Path = field(default_factory=lambda: Path("locales"))
-    files: list[str] = field(default_factory=list)
     commands_config: dict[str, list[str]] = field(default_factory=dict)
     scripts: dict[str, str] = field(default_factory=dict)
+
+    # Build settings ([tool.zuvo.build])
+    build: dict[str, Any] = field(
+        default_factory=lambda: {
+            "compiler": "pyinstaller",
+            "entry_point": "src/app/main.py",
+            "company_name": "",
+            "copyright": "Copyright (c) 2026",
+            "icon": "",
+            "files": [],
+            "output_dir": "dist",
+        }
+    )
+
+    # Inno Setup settings ([tool.zuvo.inno])
+    inno: dict[str, Any] = field(
+        default_factory=lambda: {
+            "inno_path": "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe",
+            "app_publisher_url": "",
+            "license_file": "",
+            "default_dir_name": "{autopf}\\cli-app",
+            "output_base_filename": "installer",
+        }
+    )
 
     def to_dict(self) -> dict[str, Any]:
         """Converts config instance into a dictionary suitable for codegen."""
@@ -45,14 +66,13 @@ class Config:
             "author": self.author,
             "app_type": self.app_type,
             "title": self.title,
-            "executable_name": self.executable_name,
-            "copyright": self.copyright,
-            "entry_point": self.entry_point,
+            "cli_name": self.cli_name,
             "commands_pkg": self.commands_pkg,
             "locales_dir": str(self.locales_dir),
-            "files": self.files,
             "commands_config": self.commands_config,
             "scripts": self.scripts,
+            "build": self.build,
+            "inno": self.inno,
         }
 
     @classmethod
@@ -84,15 +104,43 @@ class Config:
 
         project = raw_data.get("project", {})
         zuvo = raw_data.get("tool", {}).get("zuvo", {})
+        zuvo_build = zuvo.get("build", {})
+        zuvo_inno = zuvo.get("inno", {})
 
+        # Extract project name and author
+        name = project.get("name", "cli-app")
         authors = project.get("authors", [])
         author_name = (
             authors[0].get("name", "")
             if authors and isinstance(authors[0], dict)
             else ""
         )
-        name = project.get("name", "cli-app")
-        raw_commands_dir = zuvo.get("commands_dir", "src/app/commands")
+
+        # Extract CLI name and resolve entry_point for build
+        scripts_dict = project.get("scripts", {})
+        if scripts_dict:
+            cli_name = next(iter(scripts_dict))
+            script_target = scripts_dict[cli_name]
+            entry_point = resolve_entry_point(script_target, root)
+        else:
+            cli_name = name
+            entry_point = "src/app/main.py"
+
+        # Build configurations with defaults fallback
+        default_config = cls()
+        merged_build = {
+            **default_config.build,
+            "entry_point": entry_point,
+            **zuvo_build,
+        }
+        
+        default_inno = {
+            **default_config.inno,
+            "default_dir_name": f"{{autopf}}\\{cli_name}",
+        }
+        merged_inno = {**default_inno, **zuvo_inno}
+
+        raw_commands_pkg = zuvo.get("commands_pkg", "app.commands")
         raw_locales_dir = zuvo.get("locales_dir", "locales")
 
         return cls(
@@ -102,28 +150,30 @@ class Config:
             author=author_name,
             app_type=zuvo.get("type", "standard"),
             title=zuvo.get("title", name),
-            executable_name=zuvo.get("executable_name", name),
-            copyright=zuvo.get("copyright", ""),
-            entry_point=zuvo.get("main", "src/app/main.py"),
-            commands_pkg=to_pkg_path(raw_commands_dir),
+            cli_name=cli_name,
+            commands_pkg=to_pkg_path(raw_commands_pkg),
             locales_dir=root / raw_locales_dir,
-            files=zuvo.get("files", []),
             commands_config=zuvo.get("commands", {}),
             scripts=zuvo.get("scripts", {}),
+            build=merged_build,
+            inno=merged_inno,
         )
+
 
 # ---------------------------------------------------------------------------
 # CENTRAL REGISTRY (Passive Warehouse)
 # ---------------------------------------------------------------------------
 _instance: Config | None = None
 
+
 def set_config(config: Config) -> None:
-    """Guarda la instancia explícita cargada en el punto de entrada."""
+    """Stores the active explicit configuration loaded at runtime."""
     global _instance
     _instance = config
 
+
 def get_config() -> Config:
-    """Obtiene la instancia activa desde cualquier módulo."""
+    """Retrieves the active configuration instance across modules."""
     if _instance is None:
-        raise RuntimeError("La configuración no ha sido inicializada con set_config().")
+        raise RuntimeError("Configuration has not been initialized with set_config().")
     return _instance

@@ -29,7 +29,7 @@ def run(args=None, console: Console | None = None, config: Config | None = None)
     table.add_column("Value")
 
     table.add_row(t("version_prop_project"), cfg.name)
-    table.add_row(t("version_prop_executable"), cfg.executable_name)
+    table.add_row(t("version_prop_executable"), cfg.cli_name)
 
     if cfg.description:
         table.add_row(t("version_prop_description"), cfg.description)
@@ -37,8 +37,9 @@ def run(args=None, console: Console | None = None, config: Config | None = None)
     if cfg.author:
         table.add_row(t("version_prop_author"), f"[dim]{cfg.author}[/dim]")
 
-    if cfg.copyright:
-        table.add_row(t("version_prop_copyright"), f"[dim]{cfg.copyright}[/dim]")
+    copyright_text = cfg.build.get("copyright", "")
+    if copyright_text:
+        table.add_row(t("version_prop_copyright"), f"[dim]{copyright_text}[/dim]")
 
     out.print(table)
     

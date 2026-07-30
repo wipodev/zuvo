@@ -6,8 +6,8 @@ build-backend = "hatchling.build"
 name = "zuvo"
 version = "0.0.1.dev1"
 description = "Zero-boilerplate CLI framework with i18n and compilation support"
-readme = "README.md"
 authors = [{ name = "wipodev", email = "ajwipo@gmail.com" }]
+readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "rich==15.0.0",
@@ -31,7 +31,7 @@ packages = ["src/zuvo"]
 [tool.zuvo]
 type = "standar"
 title = "Zuvo Framework"
-commands_dir = "src/zuvo/commands"
+commands_pkg = "zuvo.commands"
 
 [tool.zuvo.commands]
 default = ["init", "run"]
