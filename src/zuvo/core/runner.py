@@ -8,6 +8,11 @@ from zuvo.core.config import Config, set_config
 from zuvo.core.registry import build_parser_and_run
 from zuvo.i18n import i18n, t
 
+try:
+    from zuvo.core.compiled_config import COMPILED_CONFIG # type: ignore
+except ImportError:
+    COMPILED_CONFIG = None
+
 _default_console = Console(stderr=True)
 
 
@@ -88,7 +93,7 @@ def run_app(
     raw_argv = argv if argv is not None else sys.argv[1:]
     argv_0 = sys.argv[0] if sys.argv else ""
 
-    cfg = config or Config.load(project_root)
+    cfg = config or COMPILED_CONFIG or Config.load(project_root)
     set_config(cfg)
 
     target_locales = locales_dir or cfg.locales_dir
