@@ -37,9 +37,8 @@ def run(args=None, console: Console | None = None, config: Config | None = None)
     if cfg.author:
         table.add_row(t("version_prop_author"), f"[dim]{cfg.author}[/dim]")
 
-    copyright_text = cfg.build.get("copyright", "")
-    if copyright_text:
-        table.add_row(t("version_prop_copyright"), f"[dim]{copyright_text}[/dim]")
+    if cfg.copyright:
+        table.add_row(t("version_prop_copyright"), f"[dim]{cfg.copyright}[/dim]")
 
     out.print(table)
     

@@ -27,6 +27,7 @@ class Config:
     # Zuvo runtime metadata
     app_type: str = "standard"
     title: str = "cli-app"
+    copyright: str = "Copyright (c) 2026"
     cli_name: str = "cli-app"
     commands_pkg: str = "app.commands"
     locales_dir: Path = field(default_factory=lambda: Path("locales"))
@@ -39,7 +40,6 @@ class Config:
             "compiler": "pyinstaller",
             "entry_point": "src/app/main.py",
             "company_name": "",
-            "copyright": "Copyright (c) 2026",
             "icon": "",
             "files": [],
             "output_dir": "dist",
@@ -66,6 +66,7 @@ class Config:
             "author": self.author,
             "app_type": self.app_type,
             "title": self.title,
+            "copyright": self.copyright,
             "cli_name": self.cli_name,
             "commands_pkg": self.commands_pkg,
             "locales_dir": str(self.locales_dir),
@@ -150,6 +151,7 @@ class Config:
             author=author_name,
             app_type=zuvo.get("type", "standard"),
             title=zuvo.get("title", name),
+            copyright=zuvo.get("copyright", "Copyright (c) 2026"),
             cli_name=cli_name,
             commands_pkg=to_pkg_path(raw_commands_pkg),
             locales_dir=root / raw_locales_dir,
