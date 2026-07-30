@@ -1,57 +1,64 @@
-import sys
-import subprocess
-from pathlib import Path
-from typing import List
-import tomllib  # O import tomli para Python < 3.11
+"""
+Executes a user CLI application or multicall module in development mode.
+"""
 
-HELP = "Executes the current project or a configured script."
+from rich.console import Console
+import subprocess
+import sys
+from pathlib import Path
+
+from zuvo.core.config import get_config
+
+console = Console()
+
+# Optional: Override description for i18n key or custom text
+HELP = "cmd_run_help"
 
 ARGS = [
     {
-        "flags": ["target_and_args"],
-        "nargs": "*",
-        "help": "Script name or executable target followed by subcommand arguments."
+        "flags": ["app_target"],
+        "type": str,
+        "help": "cmd_run_arg_app_target_help"
+    },
+    {
+        "flags": ["extra_args"],
+        "nargs": "...",
+        "help": "cmd_run_arg_extra_args_help"
     }
 ]
 
+
 def run(args):
-    cwd = Path.cwd()
-    toml_path = cwd / "pyproject.toml"
+    """
+    Executes the user's CLI application in development mode.
 
-    if not toml_path.exists():
-        print("[red]Error:[/red] No pyproject.toml found in current directory.")
-        return 1
+    Simulates system execution by overriding sys.argv[0] via runpy, ensuring
+    full compatibility with standard apps and multicall (busybox-style) modules.
+    """
+    cfg = get_config()
+    entry_script = cfg.build.get("entry_point", "src/app/main.py")
+    app_target = args.app_target
+    extra_args = getattr(args, "extra_args", []) or []
 
-    # 1. Cargar el pyproject.toml del target
-    with open(toml_path, "rb") as f:
-        config = tomllib.load(f)
+    # If the user passed an explicit .py script path
+    if app_target.endswith(".py") and Path(app_target).is_file():
+        entry_script = app_target
+        simulated_argv0 = cfg.cli_name
+    else:
+        # app_target is an app name or a multicall context (e.g., 'pepe', 'app1', 'app2')
+        simulated_argv0 = app_target
 
-    zuvo_config = config.get("tool", {}).get("zuvo", {})
-    scripts = zuvo_config.get("scripts", {})
-    executable_name = zuvo_config.get("executable_name", "app")
-    main_entry = zuvo_config.get("main", "src/main.py")
+    # Inline Python wrapper overriding sys.argv[0] to simulate execution context
+    code_wrapper = (
+        "import sys, runpy; "
+        f"sys.argv = ['{simulated_argv0}'] + sys.argv[1:]; "
+        f"runpy.run_path('{entry_script}', run_name='__main__')"
+    )
 
-    raw_args: List[str] = getattr(args, "target_and_args", [])
-    
-    if not raw_args:
-        print(f"[yellow]Usage:[/yellow] zuvo run <{executable_name}|script_name> [args...]")
-        return 1
+    cmd = [sys.executable, "-c", code_wrapper] + extra_args
 
-    target = raw_args[0]
-    extra_args = raw_args[1:]
-
-    # 2. Caso A: Es un script corto (ej: zuvo run test1)
-    if target in scripts:
-        full_command_str = scripts[target]
-        # Devuelve ej: "python src/app/main.py install --dev"
-        cmd_list = [sys.executable] + full_command_str.split()
-        return subprocess.run(cmd_list, cwd=cwd).returncode
-
-    # 3. Caso B: Es el nombre de la app (ej: zuvo run miapp install --dev)
-    if target == executable_name or target == "app":
-        # Ejecuta directamente el main.py del proyecto pasando los subcomandos
-        cmd_list = [sys.executable, str(cwd / main_entry)] + extra_args
-        return subprocess.run(cmd_list, cwd=cwd).returncode
-
-    print(f"[red]Error:[/red] Unknown script or target '{target}'.")
-    return 1
+    try:
+        result = subprocess.run(cmd)
+        return result.returncode
+    except KeyboardInterrupt:
+        return 130
