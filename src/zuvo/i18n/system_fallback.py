@@ -7,7 +7,7 @@ SYSTEM_FALLBACK: dict[str, str] = {
     # File System Errors
     "fs_err_config_not_found": "Required configuration file not found at: {path}",
 
-    # Errores y Advertencias de Carga en main.py
+    # Load Errors and Warnings in main.py
     "main_warn_cmd_module_not_found": "⚠️ Could not find module for command '{cmd}': {error}",
     "main_warn_cmd_load_error": "⚠️ Error loading command '{cmd}': {error}",
     "main_err_unrecognized_context": "❌ Context or module '{invoked_as}' not recognized.",
@@ -51,11 +51,4 @@ SYSTEM_FALLBACK: dict[str, str] = {
     "version_prop_description": "Description",
     "version_prop_author": "Author",
     "version_prop_copyright": "Copyright",
-
-    # examples Commands
-    "cmd_install_help": "Installs all necessary environment dependencies.",
-    "cmd_install_arg_dev_help": "Include development dependencies",
-    "cmd_create_help": "Creates a new resource within the project workspace.",
-    "cmd_create_arg_name_help": "Target name of the new resource.",
-    "cmd_create_arg_force_help": "Force overwrite if the target resource already exists.",
 }

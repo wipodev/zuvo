@@ -41,13 +41,10 @@
   "version_prop_author": "Autor",
   "version_prop_copyright": "Copyright",
 
-  "cmd_install_help": "Instala todas las dependencias necesarias del entorno.",
-  "cmd_install_arg_dev_help": "Incluir dependencias de desarrollo",
-  "cmd_install_arg_help": "Incluir dependencias de desarrollo",
-  "cmd_create_help": "Crea un nuevo recurso en el espacio de trabajo del proyecto.",
-  "cmd_create_arg_name_help": "Nombre de destino del nuevo recurso.",
-  "cmd_create_arg_force_help": "Forzar la sobrescritura si el recurso de destino ya existe.",
-
   "cmd_init_help": "Inicializa un nuevo proyecto Zuvo y genera el archivo pyproject.toml.",
-  "cmd_init_arg_yes_help": "Genera pyproject.toml con valores por defecto sin realizar preguntas."
+  "cmd_init_arg_yes_help": "Genera pyproject.toml con valores por defecto sin realizar preguntas.",
+
+  "cmd_run_help": "Ejecuta una aplicación CLI o módulo multicall del usuario en modo de desarrollo.",
+  "cmd_run_arg_app_target_help": "Nombre del objetivo CLI, alias de aplicación multicall o ruta explícita a un script .py.",
+  "cmd_run_arg_extra_args_help": "Argumentos y banderas adicionales para transferir directamente a la aplicación objetivo."
 }
