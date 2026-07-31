@@ -80,6 +80,12 @@
   "cmd_build_config_generated": "Static configuration module generated",
   "cmd_build_config_saved": "Compiled configuration saved to",
   "cmd_build_err_invalid_compiler": "Unsupported compiler specified: {compiler}",
+  "cmd_build_err_missing_entry": "Entry point file not found: {path}",
+  "cmd_build_compiling_status": "Compiling binary...",
+  "cmd_build_success_msg": "Build completed successfully! Artifacts placed in: {path}",
+  "cmd_build_failed_msg": "Build process failed",
+  "cmd_build_nuitka_title": "Nuitka Compiler Engine",
+  "cmd_build_nuitka_running": "Compiling with Nuitka...",
 
   "cmd_package_help": "Orchestrates application packaging processes using configured or specified packagers.",
   "cmd_package_arg_type_help": "Specify package type (inno, appimage, dmg). Defaults to current OS standard.",
