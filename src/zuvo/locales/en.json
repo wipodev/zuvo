@@ -100,5 +100,19 @@
   "cmd_package_version_label": "Version",
   "cmd_package_err_unsupported_os": "Unsupported operating system for default packaging: {os}",
   "cmd_package_err_win_only": "{packager} packaging is only supported on Windows.",
-  "cmd_package_err_invalid_type": "Unsupported package type specified: {type}"
+  "cmd_package_err_invalid_type": "Unsupported package type specified: {type}",
+  "cmd_package_innosetup_missing_title": "Inno Setup Missing",
+  "cmd_package_innosetup_err_missing_iscc": "ISCC.exe (Inno Setup) was not found.",
+  "cmd_package_innosetup_configured_path": "Configured path",
+  "cmd_package_innosetup_install_hint": "Ensure Inno Setup 6 is installed and added to your PATH or configured correctly in [tool.zuvo.inno].",
+  "cmd_package_innosetup_table_title": "Inno Setup Installer Configuration",
+  "cmd_package_innosetup_prop_cli_name": "CLI Name",
+  "cmd_package_innosetup_prop_output": "Installer Output",
+  "cmd_package_innosetup_prop_target_dir": "Target Directory",
+  "cmd_package_innosetup_prop_iscc_bin": "ISCC Executable",
+  "cmd_package_innosetup_running": "Building Inno Setup installer package...",
+  "cmd_package_innosetup_success_title": "Package Complete",
+  "cmd_package_innosetup_success_msg": "Installer generated successfully!",
+  "cmd_package_innosetup_location_label": "Location",
+  "cmd_package_innosetup_failed_msg": "Failed to build Inno Setup package."
 }

@@ -100,5 +100,19 @@
   "cmd_package_version_label": "Versión",
   "cmd_package_err_unsupported_os": "Sistema operativo no soportado para el empaquetado predeterminado: {os}",
   "cmd_package_err_win_only": "El empaquetado con {packager} solo es compatible con Windows.",
-  "cmd_package_err_invalid_type": "Tipo de paquete no soportado especificado: {type}"
+  "cmd_package_err_invalid_type": "Tipo de paquete no soportado especificado: {type}",
+  "cmd_package_innosetup_missing_title": "Inno Setup No Encontrado",
+  "cmd_package_innosetup_err_missing_iscc": "No se encontró ISCC.exe (Inno Setup).",
+  "cmd_package_innosetup_configured_path": "Ruta configurada",
+  "cmd_package_innosetup_install_hint": "Asegúrate de que Inno Setup 6 esté instalado y añadido a tu PATH o configurado correctamente en [tool.zuvo.inno].",
+  "cmd_package_innosetup_table_title": "Configuración del Instalador Inno Setup",
+  "cmd_package_innosetup_prop_cli_name": "Nombre de CLI",
+  "cmd_package_innosetup_prop_output": "Salida del Instalador",
+  "cmd_package_innosetup_prop_target_dir": "Directorio Objetivo",
+  "cmd_package_innosetup_prop_iscc_bin": "Ejecutable ISCC",
+  "cmd_package_innosetup_running": "Construyendo paquete instalador con Inno Setup...",
+  "cmd_package_innosetup_success_title": "Paquete Completado",
+  "cmd_package_innosetup_success_msg": "¡Instalador generado con éxito!",
+  "cmd_package_innosetup_location_label": "Ubicación",
+  "cmd_package_innosetup_failed_msg": "Error al construir el paquete Inno Setup."
 }

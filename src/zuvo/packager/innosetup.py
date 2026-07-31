@@ -9,6 +9,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from zuvo.core.config import Config, get_config
+from zuvo.i18n import t
 from zuvo.utils.exec import run_system_command
 
 _default_console = Console()
@@ -32,21 +33,19 @@ def _build_iss_script(config: Config, root: Path, iss_path: Path) -> Path:
     default_dir = inno_cfg.get("default_dir_name", f"{{autopf}}\\{config.cli_name}")
     license_file = inno_cfg.get("license_file", "")
 
-    # Determinar si el resultado del compilador fue en modo One-Folder (dist_dir/*) o One-File (.exe)
     source_dir = out_dir / f"{config.cli_name}.dist"
     if source_dir.exists():
         files_section = f'Source: "{source_dir}\\*"; DestDir: "{{app}}"; Flags: ignoreversion recursesubdirs createallsubdirs'
     else:
-        # Fallback a un archivo exe único si PyInstaller/Nuitka compilaron en one-file
         files_section = f'Source: "{out_dir}\\{config.cli_name}.exe"; DestDir: "{{app}}"; Flags: ignoreversion'
 
-    # Manejo opcional de la licencia
     license_line = ""
+    license_setup_line = ""
     if license_file and (root / license_file).exists():
         license_path = (root / license_file).resolve()
-        license_line = f'LicenseFile="{license_path}"\nFilesSectionExtra=Source: "{license_path}"; DestDir: "{{app}}"; DestName: "LICENSE.txt"; Flags: ignoreversion'
+        license_setup_line = f'\nLicenseFile="{license_path}"'
+        license_line = f'Source: "{license_path}"; DestDir: "{{app}}"; DestName: "LICENSE.txt"; Flags: ignoreversion'
 
-    # Plantilla ISS optimizada para CLI
     iss_content = f"""
 ; ==========================================================
 ; Generated automatically by Zuvo Packager
@@ -65,8 +64,7 @@ VersionInfoDescription={description}
 VersionInfoProductName={title}
 VersionInfoProductVersion={version}
 VersionInfoTextVersion={version}
-VersionInfoVersion={version}
-{f'LicenseFile={root / license_file}' if license_file and (root / license_file).exists() else ''}
+VersionInfoVersion={version}{license_setup_line}
 DefaultDirName={default_dir}
 DisableProgramGroupPage=yes
 DisableDirPage=no
@@ -81,6 +79,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 
 [Files]
 {files_section}
+{license_line}
 
 [Registry]
 ; Agrega la ruta de instalacion al PATH del usuario sin requerir administrador
@@ -120,7 +119,6 @@ def package_innosetup(
     cfg = config or get_config()
     root = Path(project_root) if project_root else Path.cwd()
 
-    # 1. Resolver ruta del ejecutable ISCC.exe
     configured_iscc = cfg.inno.get("inno_path", "")
     iscc_bin = (
         shutil.which(configured_iscc)
@@ -131,36 +129,52 @@ def package_innosetup(
     if not iscc_bin or not Path(iscc_bin).exists():
         out.print(
             Panel(
-                f"[bold red]❌ ISCC.exe (Inno Setup) was not found.[/bold red]\n\n"
-                f"Configured path: [yellow]{configured_iscc}[/yellow]\n"
-                "Ensure Inno Setup 6 is installed and added to your PATH or configured correctly in [cyan][tool.zuvo.inno][/cyan].",
-                title="[bold red]Inno Setup Missing[/bold red]",
+                f"[bold red]❌ {t('cmd_package_innosetup_err_missing_iscc')}[/bold red]\n\n"
+                f"{t('cmd_package_innosetup_configured_path')}: [yellow]{configured_iscc}[/yellow]\n"
+                f"{t('cmd_package_innosetup_install_hint')}",
+                title=f"[bold red]{t('cmd_package_innosetup_missing_title')}[/bold red]",
                 border_style="red",
             )
         )
         return False
 
-    # 2. Resumen visual en consola usando Rich
-    table = Table(title="📦 Inno Setup Installer Configuration", show_header=False)
+    table = Table(
+        title=f"📦 {t('cmd_package_innosetup_table_title')}",
+        show_header=False,
+    )
     table.add_column("Property", style="cyan")
     table.add_column("Value", style="bold white")
 
-    table.add_row("CLI Name", cfg.cli_name)
-    table.add_row("Version", cfg.version)
-    table.add_row("Installer Output", f"{cfg.inno.get('output_base_filename')}.exe")
-    table.add_row("Target Directory", cfg.inno.get("default_dir_name"))
-    table.add_row("ISCC Executable", str(iscc_bin))
+    table.add_row(t("cmd_package_innosetup_prop_cli_name"), cfg.cli_name)
+    table.add_row(t("cmd_package_version_label"), cfg.version)
+    table.add_row(
+        t("cmd_package_innosetup_prop_output"),
+        f"{cfg.inno.get('output_base_filename')}.exe",
+    )
+    table.add_row(
+        t("cmd_package_innosetup_prop_target_dir"),
+        cfg.inno.get("default_dir_name"),
+    )
+    table.add_row(t("cmd_package_innosetup_prop_iscc_bin"), str(iscc_bin))
 
     out.print(table)
     out.print()
 
-    # 3. Generación y ejecución
     build_tmp_dir = root / "build"
     build_tmp_dir.mkdir(parents=True, exist_ok=True)
     iss_file = build_tmp_dir / "installer.iss"
 
+    out_file_path = (
+        root
+        / cfg.build.get("output_dir", "dist")
+        / f"{cfg.inno.get('output_base_filename')}.exe"
+    )
+
     try:
-        with out.status("[bold green]Building Inno Setup installer package...", spinner="dots"):
+        with out.status(
+            f"[bold green]{t('cmd_package_innosetup_running')}[/bold green]",
+            spinner="dots",
+        ):
             _build_iss_script(cfg, root, iss_file)
             cmd = [str(iscc_bin), str(iss_file)]
             success = run_system_command(cmd, cwd=root, console=out)
@@ -168,17 +182,22 @@ def package_innosetup(
         if success:
             out.print(
                 Panel(
-                    f"[bold green]✔ Installer generated successfully![/bold green]\n\n"
-                    f"Location: [cyan]{root / cfg.build.get('output_dir', 'dist') / cfg.inno.get('output_base_filename')}.exe[/cyan]",
-                    title="[bold green]Package Complete[/bold green]",
+                    f"[bold green]✔ {t('cmd_package_innosetup_success_msg')}[/bold green]\n\n"
+                    f"{t('cmd_package_innosetup_location_label')}: [cyan]{out_file_path}[/cyan]",
+                    title=f"[bold green]{t('cmd_package_innosetup_success_title')}[/bold green]",
                     border_style="green",
                 )
             )
             return True
         else:
-            out.print("[bold red]❌ Failed to build Inno Setup package.[/bold red]")
+            out.print(
+                f"[bold red]❌ {t('cmd_package_innosetup_failed_msg')}[/bold red]"
+            )
             return False
 
     finally:
         if iss_file.exists():
-            iss_file.unlink()
+            try:
+                iss_file.unlink()
+            except OSError:
+                pass
