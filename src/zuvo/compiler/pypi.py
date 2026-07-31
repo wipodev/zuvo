@@ -21,7 +21,7 @@ _default_console = Console()
 def _build_pypi_flags(opts: BuildOptions) -> list[str]:
     """
     Generates pure CLI arguments list for PyPA 'build' execution.
-    
+
     Args:
         opts (BuildOptions): Configured build options.
 
@@ -61,42 +61,38 @@ def build_pypi(
 
     options = opts or BuildOptions.from_config(cfg, project_root=root)
 
-    # 1. UI Panel Header
     out.print()
     out.print(
         Panel(
-            f"[bold magenta]📦 {t('build_pypi_title')}[/bold magenta]\n"
+            f"[bold magenta]📦 {t('cmd_build_pypi_title')}[/bold magenta]\n"
             f"[dim]{cfg.name} v{cfg.version}[/dim]",
             border_style="magenta",
             expand=False,
         )
     )
 
-    # 2. Get CLI command flags
     cmd = _build_pypi_flags(options)
 
-    # 3. Setup execution environment
     src_dir = root / "src"
     env = os.environ.copy()
     if src_dir.exists():
         env["PYTHONPATH"] = str(src_dir) + os.pathsep + env.get("PYTHONPATH", "")
 
-    # 4. Execution using Rich status and run_system_command
-    out.print(f"[bold cyan]🛠️  {t('build_packaging_status')}[/bold cyan]")
+    out.print(f"[bold cyan]🛠️  {t('cmd_build_pypi_packaging_status')}[/bold cyan]")
     out.print(Rule(style="dim"))
 
     try:
         with out.status(
-            f"[bold green]{t('build_pypi_running')}[/bold green]", spinner="dots"
+            f"[bold green]{t('cmd_build_pypi_running')}[/bold green]", spinner="dots"
         ):
             run_system_command(cmd, cwd=root, env=env, console=out)
 
         out.print(Rule(style="dim"))
         out.print(
-            f"\n[bold green]✔ {t('build_pypi_success_msg', path=str(options.dist_dir))}[/bold green]\n"
+            f"\n[bold green]✔ {t('cmd_build_pypi_success_msg', path=str(options.dist_dir))}[/bold green]\n"
         )
         return True
     except Exception as err:
         out.print(Rule(style="dim"))
-        out.print(f"\n[bold red]❌ {t('build_failed_msg')}: {err}[/bold red]\n")
+        out.print(f"\n[bold red]❌ {t('cmd_build_failed_msg')}: {err}[/bold red]\n")
         return False

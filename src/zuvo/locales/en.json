@@ -88,6 +88,10 @@
   "cmd_build_pyinstaller_running": "Compiling with PyInstaller...",
   "cmd_build_nuitka_title": "Nuitka Compiler Engine",
   "cmd_build_nuitka_running": "Compiling with Nuitka...",
+  "cmd_build_pypi_title": "PyPI Package Builder Engine",
+  "cmd_build_pypi_packaging_status": "Building wheel and source distributions...",
+  "cmd_build_pypi_running": "Building PyPI packages...",
+  "cmd_build_pypi_success_msg": "PyPI packages built successfully! Distributions placed in: {path}",
 
   "cmd_package_help": "Orchestrates application packaging processes using configured or specified packagers.",
   "cmd_package_arg_type_help": "Specify package type (inno, appimage, dmg). Defaults to current OS standard.",

@@ -88,6 +88,10 @@
   "cmd_build_pyinstaller_running": "Compilando con PyInstaller...",
   "cmd_build_nuitka_title": "Motor de Compilación Nuitka",
   "cmd_build_nuitka_running": "Compilando con Nuitka...",
+  "cmd_build_pypi_title": "Motor de Construcción de Paquetes PyPI",
+  "cmd_build_pypi_packaging_status": "Construyendo distribuciones wheel y de código fuente...",
+  "cmd_build_pypi_running": "Construyendo paquetes PyPI...",
+  "cmd_build_pypi_success_msg": "¡Paquetes PyPI construidos con éxito! Distribuciones alojadas en: {path}",
 
   "cmd_package_help": "Orquesta los procesos de empaquetado de la aplicación utilizando empaquetadores configurados o especificados.",
   "cmd_package_arg_type_help": "Especificar el tipo de paquete (inno, appimage, dmg). Por defecto usa el estándar del sistema operativo.",
