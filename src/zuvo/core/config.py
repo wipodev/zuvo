@@ -25,7 +25,6 @@ class Config:
     author: str = ""
 
     # Zuvo runtime metadata
-    app_type: str = "standard"
     title: str = "cli-app"
     copyright: str = "Copyright (c) 2026"
     cli_name: str = "cli-app"
@@ -63,7 +62,6 @@ class Config:
             "version": self.version,
             "description": self.description,
             "author": self.author,
-            "app_type": self.app_type,
             "title": self.title,
             "copyright": self.copyright,
             "cli_name": self.cli_name,
@@ -139,7 +137,6 @@ class Config:
             version=project.get("version", "0.0.1"),
             description=project.get("description", ""),
             author=author_name,
-            app_type=zuvo.get("type", "standard"),
             title=zuvo.get("title", name),
             copyright=zuvo.get("copyright", "Copyright (c) 2026"),
             cli_name=cli_name,

@@ -103,17 +103,17 @@ def run_app(
 
     invoked_as = get_invocation_name(argv_0, cfg.cli_name)
 
-    if cfg.app_type == "module":
-        if invoked_as in cfg.commands_config:
-            cmd_list = cfg.commands_config.get(invoked_as, [])
-            package_path = f"{cfg.commands_pkg}.{invoked_as}"
-        else:
-            msg = t("main_err_unrecognized_context", invoked_as=invoked_as)
-            out.print(msg)
-            sys.exit(int(ExitCode.UNKNOWN_CONTEXT))
-    else:
-        cmd_list = cfg.commands_config.get("default", [])
-        package_path = cfg.commands_pkg
+    if invoked_as not in cfg.commands_config:
+        msg = t("main_err_unrecognized_context", invoked_as=invoked_as)
+        out.print(msg)
+        sys.exit(int(ExitCode.UNKNOWN_CONTEXT))
+
+    cmd_list = cfg.commands_config.get(invoked_as, [])
+    package_path = (
+        f"{cfg.commands_pkg}.{invoked_as}"
+        if len(cfg.commands_config) > 1
+        else cfg.commands_pkg
+    )
 
     commands_map = load_command_modules(cmd_list, package_path, project_root=project_root, console=out)
     build_parser_and_run(commands_map, invoked_as, argv=raw_argv, console=out)

@@ -8,7 +8,7 @@ version = "0.0.1.dev1"
 description = "Zero-boilerplate CLI framework with i18n and compilation support"
 authors = [{ name = "wipodev", email = "ajwipo@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "rich==15.0.0",
     "babel==2.18.0",
@@ -29,9 +29,9 @@ packages = ["src/zuvo"]
 "src/zuvo/template" = "zuvo/template"
 
 [tool.zuvo]
-type = "standar"
 title = "Zuvo Framework"
+copyright = "© 2026 WipoDev. All Rights Reserved."
 commands_pkg = "zuvo.commands"
 
 [tool.zuvo.commands]
-default = ["init", "run"]
+zuvo = ["init", "run"]
