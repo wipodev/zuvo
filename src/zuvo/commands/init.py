@@ -35,7 +35,7 @@ def _ask(prompt_text: str, default_val: str, console: Console) -> str:
 
 def _build_toml_content(data: dict) -> str:
     """
-    Builds a formatted pyproject.toml content string aligned with Config schema.
+    Builds a formatted pyproject.toml content string with descriptive comments.
     """
     authors_block = (
         f'\nauthors = [\n    {{ name = "{data["author"]}" }}\n]'
@@ -43,10 +43,16 @@ def _build_toml_content(data: dict) -> str:
         else ""
     )
 
-    return f"""[build-system]
+    return f"""# ==============================================================================
+# Build System Configuration
+# ==============================================================================
+[build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# ==============================================================================
+# Standard Project Metadata (PEP 621)
+# ==============================================================================
 [project]
 name = "{data['name']}"
 version = "{data['version']}"
@@ -57,30 +63,42 @@ dependencies = [
     "zuvo",
 ]
 
+# CLI Entrypoint mapping: executable_name = "package.module:function"
 [project.scripts]
 {data['cli_name']} = "{data['entry_point']}"
 
+# ==============================================================================
+# Zuvo Framework Settings
+# ==============================================================================
 [tool.zuvo]
+# Display title used in CLI headers, panels, and help outputs
 title = "{data['title']}"
+
+# Legal copyright notice displayed in application footers or metadata
 copyright = "{data['copyright']}"
+
+# Python package dot-path where command modules reside (e.g., app.commands)
 commands_pkg = "{data['commands_pkg']}"
 
+# Default command configurations and subcommand aliases
 [tool.zuvo.commands]
 {data['cli_name']} = []
 
+# Packaging & Compilation Settings (PyInstaller)
 [tool.zuvo.build]
-compiler = "pyinstaller"
-company_name = "{data['author']}"
-icon = ""
-files = []
-output_dir = "dist"
+compiler = "pyinstaller"      # Compiler engine used for standalone binary creation
+company_name = "{data['author']}"  # Metadata publisher/company name
+icon = ""                      # Path to .ico or binary icon file
+files = []                     # Additional static data files or assets to bundle
+output_dir = "dist"            # Target directory for compiled binaries
 
+# Windows Installer Settings (Inno Setup)
 [tool.zuvo.inno]
-inno_path = "C:\\\\Program Files (x86)\\\\Inno Setup 6\\\\ISCC.exe"
-app_publisher_url = ""
-license_file = ""
-default_dir_name = "{data['cli_name']}"
-output_base_filename = "{data['cli_name']}-Setup"
+inno_path = "C:\\\\Program Files (x86)\\\\Inno Setup 6\\\\ISCC.exe" # Path to ISCC compiler
+app_publisher_url = ""         # Publisher homepage URL
+license_file = ""              # Path to license file (.txt or .rtf)
+default_dir_name = "{data['cli_name']}"  # Default installation folder under Program Files
+output_base_filename = "{data['cli_name']}-Setup" # Generated setup installer executable name
 """
 
 
