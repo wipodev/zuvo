@@ -84,6 +84,8 @@
   "cmd_build_compiling_status": "Compilando binario...",
   "cmd_build_success_msg": "¡Compilación completada con éxito! Artefactos alojados en: {path}",
   "cmd_build_failed_msg": "El proceso de compilación ha fallado",
+  "cmd_build_pyinstaller_title": "Motor de Compilación PyInstaller",
+  "cmd_build_pyinstaller_running": "Compilando con PyInstaller...",
   "cmd_build_nuitka_title": "Motor de Compilación Nuitka",
   "cmd_build_nuitka_running": "Compilando con Nuitka...",
 

@@ -38,11 +38,9 @@ def _build_flags(opts: BuildOptions, root: Path) -> tuple[list[str], Path | None
         "--onedir",
         f"--distpath={opts.dist_dir}",
         f"--name={clean_name}",
-        # Target dynamic command modules without bundling the entire package
         f"--collect-submodules={opts.commands_pkg}",
     ]
 
-    # External locales directory inclusion
     if opts.locales_dir:
         locales_dir = opts.locales_dir
         rel_locales = (
@@ -52,6 +50,7 @@ def _build_flags(opts: BuildOptions, root: Path) -> tuple[list[str], Path | None
         )
         cmd.append(f"--add-data={root / rel_locales}{sep}locales")
 
+    version_file_path: Path | None = None
     if sys.platform == "win32":
         build_tmp_dir = root / "build"
         build_tmp_dir.mkdir(parents=True, exist_ok=True)
@@ -59,15 +58,12 @@ def _build_flags(opts: BuildOptions, root: Path) -> tuple[list[str], Path | None
         generate_version_file(opts, version_file_path)
         cmd.append(f"--version-file={version_file_path}")
 
-    # Icon configuration
     if opts.icon_path:
         cmd.append(f"--icon={opts.icon_path}")
 
-    # User Defined Assets Inclusion
     for src_path, dest_rel in opts.assets.items():
         cmd.append(f"--add-data={src_path}{sep}{dest_rel}")
 
-    # Target entry point script
     cmd.append(str(opts.entry_point))
     return cmd, version_file_path
 
@@ -95,52 +91,47 @@ def build_pyinstaller(
 
     if not options.entry_point.is_file():
         out.print(
-            f"[bold red]❌ {t('build_err_missing_entry', path=str(options.entry_point))}[/bold red]"
+            f"[bold red]❌ {t('cmd_build_err_missing_entry', path=str(options.entry_point))}[/bold red]"
         )
         return False
 
-    # 1. Visual Panel Header
     out.print()
     out.print(
         Panel(
-            f"[bold magenta]🚀 {t('build_pyinstaller_title')}[/bold magenta]\n"
+            f"[bold magenta]🚀 {t('cmd_build_pyinstaller_title')}[/bold magenta]\n"
             f"[dim]{cfg.name} v{cfg.version}[/dim]",
             border_style="magenta",
             expand=False,
         )
     )
 
-    # 2. Build PyInstaller-specific flags
     cmd, version_file_path = _build_flags(options, root)
 
-    # 3. Environment setup
     src_dir = root / "src"
     env = os.environ.copy()
     if src_dir.exists():
         env["PYTHONPATH"] = str(src_dir) + os.pathsep + env.get("PYTHONPATH", "")
 
-    # 4. Execution with Rich spinner status
-    out.print(f"[bold cyan]🛠️  {t('build_compiling_status')}[/bold cyan]")
+    out.print(f"[bold cyan]🛠️  {t('cmd_build_compiling_status')}[/bold cyan]")
     out.print(Rule(style="dim"))
 
     success = False
     try:
         with out.status(
-            f"[bold green]{t('build_pyinstaller_running')}[/bold green]", spinner="dots"
+            f"[bold green]{t('cmd_build_pyinstaller_running')}[/bold green]", spinner="dots"
         ):
             run_system_command(cmd, cwd=root, env=env, console=out)
 
         out.print(Rule(style="dim"))
         out.print(
-            f"\n[bold green]✔ {t('build_success_msg', path=str(options.dist_dir))}[/bold green]\n"
+            f"\n[bold green]✔ {t('cmd_build_success_msg', path=str(options.dist_dir))}[/bold green]\n"
         )
         success = True
     except Exception as err:
         out.print(Rule(style="dim"))
-        out.print(f"\n[bold red]❌ {t('build_failed_msg')}: {err}[/bold red]\n")
+        out.print(f"\n[bold red]❌ {t('cmd_build_failed_msg')}: {err}[/bold red]\n")
         success = False
     finally:
-        # Cleanup temporary version file
         if version_file_path and version_file_path.exists():
             try:
                 version_file_path.unlink()

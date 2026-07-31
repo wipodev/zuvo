@@ -84,6 +84,8 @@
   "cmd_build_compiling_status": "Compiling binary...",
   "cmd_build_success_msg": "Build completed successfully! Artifacts placed in: {path}",
   "cmd_build_failed_msg": "Build process failed",
+  "cmd_build_pyinstaller_title": "PyInstaller Compiler Engine",
+  "cmd_build_pyinstaller_running": "Compiling with PyInstaller...",
   "cmd_build_nuitka_title": "Nuitka Compiler Engine",
   "cmd_build_nuitka_running": "Compiling with Nuitka...",
 
