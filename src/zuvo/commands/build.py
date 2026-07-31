@@ -16,10 +16,8 @@ from zuvo.compiler.pypi import build_pypi
 from zuvo.core.config import Config, get_config
 from zuvo.i18n import t
 
-# Default fallback console for standard CLI invocation
 _default_console = Console()
 
-# i18n Translation key for command help
 HELP = "cmd_build_help"
 
 ARGS = [
@@ -64,7 +62,6 @@ def _generate_compiled_config(cfg: Config, root: Path) -> Path:
         f"COMPILED_CONFIG = Config.from_dict({formatted_dict})\n"
     )
 
-    # Resolution of target output path for frozen context
     target_dir = root / "src" / "zuvo" / "core"
     target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -93,7 +90,6 @@ def run(
     cfg = config or get_config()
     root = Path(project_root) if project_root else Path.cwd()
 
-    # Apply CLI flag overrides if explicitly passed
     selected_compiler = (
         getattr(args, "compiler", None)
         or cfg.build.get("compiler", "pyinstaller")
@@ -105,18 +101,16 @@ def run(
     if getattr(args, "output", None):
         cfg.build["output_dir"] = args.output
 
-    # 1. Header Visual Panel
     out.print(
         Panel(
-            f"[bold cyan]🔨 {t('build_start_title', name=cfg.name)}[/bold cyan]\n"
-            f"[dim]{t('build_compiler_label')}:[/dim] [yellow]{selected_compiler.upper()}[/yellow]\n"
-            f"[dim]{t('build_version_label')}:[/dim] [green]v{cfg.version}[/green]",
+            f"[bold cyan]🔨 {t('cmd_build_start_title', name=cfg.name)}[/bold cyan]\n"
+            f"[dim]{t('cmd_build_compiler_label')}:[/dim] [yellow]{selected_compiler.upper()}[/yellow]\n"
+            f"[dim]{t('cmd_build_version_label')}:[/dim] [green]v{cfg.version}[/green]",
             border_style="cyan",
             expand=False,
         )
     )
 
-    # 2. Generate static COMPILED_CONFIG
     compiled_cfg_path: Path | None = None
     try:
         with Progress(
@@ -126,23 +120,21 @@ def run(
             console=out,
         ) as progress:
             task = progress.add_task(
-                description=f"[cyan]{t('build_generating_config')}[/cyan]",
+                description=f"[cyan]{t('cmd_build_generating_config')}[/cyan]",
                 total=None,
             )
             compiled_cfg_path = _generate_compiled_config(cfg, root)
             progress.update(
                 task,
-                description=f"[green]✔ {t('build_config_generated')}[/green]",
+                description=f"[green]✔ {t('cmd_build_config_generated')}[/green]",
             )
 
         out.print(
-            f"[bold green]✔[/bold green] [dim]{t('build_config_saved')}:[/dim] [white]{compiled_cfg_path.relative_to(root)}[/white]"
+            f"[bold green]✔[/bold green] [dim]{t('cmd_build_config_saved')}:[/dim] [white]{compiled_cfg_path.relative_to(root)}[/white]"
         )
 
-        # 3. Create centralized BuildOptions
         opts = BuildOptions.from_config(cfg, project_root=root)
 
-        # 4. Compiler Dispatcher
         success = False
         if selected_compiler == "nuitka":
             success = build_nuitka(opts=opts, config=cfg, console=out, project_root=root)
@@ -152,12 +144,12 @@ def run(
             success = build_pypi(opts=opts, config=cfg, console=out, project_root=root)
         else:
             out.print(
-                f"[bold red]❌ {t('build_err_invalid_compiler', compiler=selected_compiler)}[/bold red]"
+                f"[bold red]❌ {t('cmd_build_err_invalid_compiler', compiler=selected_compiler)}[/bold red]"
             )
             success = False
 
         if not success:
-                sys.exit(1)
+            sys.exit(1)
 
     finally:
         if compiled_cfg_path and compiled_cfg_path.exists():

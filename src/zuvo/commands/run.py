@@ -9,7 +9,6 @@ from pathlib import Path
 from zuvo.core.config import Config, get_config
 
 
-# Optional: Override description for i18n key or custom text
 HELP = "cmd_run_help"
 
 ARGS = [
@@ -43,7 +42,7 @@ def run(args, config: Config | None = None,):
         entry_script = app_target
         simulated_argv0 = cfg.cli_name
     else:
-        # app_target is an app name or a multicall context (e.g., 'pepe', 'app1', 'app2')
+        # app_target is an app name or a multicall context (e.g., 'app1', 'app2')
         simulated_argv0 = app_target
 
     # Inline Python wrapper overriding sys.argv[0] to simulate execution context

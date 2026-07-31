@@ -67,5 +67,17 @@
 
   "cmd_run_help": "Ejecuta una aplicación CLI o módulo multicall del usuario en modo de desarrollo.",
   "cmd_run_arg_app_target_help": "Nombre del objetivo CLI, alias de aplicación multicall o ruta explícita a un script .py.",
-  "cmd_run_arg_extra_args_help": "Argumentos y banderas adicionales para transferir directamente a la aplicación objetivo."
+  "cmd_run_arg_extra_args_help": "Argumentos y banderas adicionales para transferir directamente a la aplicación objetivo.",
+
+  "cmd_build_help": "Orquesta los procesos de compilación de la aplicación utilizando los compiladores configurados o especificados.",
+  "cmd_build_arg_compiler_help": "Anular el motor de compilación (pyinstaller, nuitka, pypi).",
+  "cmd_build_arg_entry_help": "Anular la ruta del script de punto de entrada.",
+  "cmd_build_arg_output_help": "Anular la ruta del directorio de salida.",
+  "cmd_build_start_title": "Compilando proyecto: {name}",
+  "cmd_build_compiler_label": "Compilador",
+  "cmd_build_version_label": "Versión",
+  "cmd_build_generating_config": "Generando módulo de configuración estático...",
+  "cmd_build_config_generated": "Módulo de configuración estático generado",
+  "cmd_build_config_saved": "Configuración compilada guardada en",
+  "cmd_build_err_invalid_compiler": "Compilador no soportado especificado: {compiler}"
 }
