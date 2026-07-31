@@ -36,3 +36,6 @@ commands_pkg = "zuvo.commands"
 
 [tool.zuvo.commands]
 zuvo = ["init", "run", "build", "package"]
+
+[tool.zuvo.build]
+compiler = "pypi"

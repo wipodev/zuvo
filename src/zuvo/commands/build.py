@@ -12,6 +12,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from zuvo.compiler.builder import BuildOptions
 from zuvo.compiler.nuitka import build_nuitka
 from zuvo.compiler.pyinstaller import build_pyinstaller
+from zuvo.compiler.pypi import build_pypi
 from zuvo.core.config import Config, get_config
 from zuvo.i18n import t
 
@@ -25,7 +26,7 @@ ARGS = [
     {
         "flags": ["-c", "--compiler"],
         "type": str,
-        "choices": ["pyinstaller", "nuitka"],
+        "choices": ["pyinstaller", "nuitka", "pypi"],
         "help": "cmd_build_arg_compiler_help",
     },
     {
@@ -147,6 +148,8 @@ def run(
             success = build_nuitka(opts=opts, config=cfg, console=out, project_root=root)
         elif selected_compiler == "pyinstaller":
             success = build_pyinstaller(opts=opts, config=cfg, console=out, project_root=root)
+        elif selected_compiler == "pypi":
+            success = build_pypi(opts=opts, config=cfg, console=out, project_root=root)
         else:
             out.print(
                 f"[bold red]❌ {t('build_err_invalid_compiler', compiler=selected_compiler)}[/bold red]"
