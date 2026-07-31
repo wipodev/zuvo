@@ -105,7 +105,7 @@ def run(
     args,
     console: Console | None = None,
     project_root: Path | str | None = None,
-) -> None:
+) -> tuple[str, str] | None:
     """
     Executes the project initialization wizard or creates defaults if -y is provided.
 
@@ -198,3 +198,5 @@ def run(
         f"\n[bold green]✔[/bold green] [white]{t('cmd_init_success_prefix')} [/white]"
         f"[bold cyan]pyproject.toml[/bold cyan]!\n"
     )
+
+    return config_data["commands_pkg"], config_data["entry_point"]
