@@ -79,5 +79,14 @@
   "cmd_build_generating_config": "Generando módulo de configuración estático...",
   "cmd_build_config_generated": "Módulo de configuración estático generado",
   "cmd_build_config_saved": "Configuración compilada guardada en",
-  "cmd_build_err_invalid_compiler": "Compilador no soportado especificado: {compiler}"
+  "cmd_build_err_invalid_compiler": "Compilador no soportado especificado: {compiler}",
+
+  "cmd_package_help": "Orquesta los procesos de empaquetado de la aplicación utilizando empaquetadores configurados o especificados.",
+  "cmd_package_arg_type_help": "Especificar el tipo de paquete (inno, appimage, dmg). Por defecto usa el estándar del sistema operativo.",
+  "cmd_package_start_title": "Empaquetando proyecto: {name}",
+  "cmd_package_type_label": "Empaquetador",
+  "cmd_package_version_label": "Versión",
+  "cmd_package_err_unsupported_os": "Sistema operativo no soportado para el empaquetado predeterminado: {os}",
+  "cmd_package_err_win_only": "El empaquetado con {packager} solo es compatible con Windows.",
+  "cmd_package_err_invalid_type": "Tipo de paquete no soportado especificado: {type}"
 }

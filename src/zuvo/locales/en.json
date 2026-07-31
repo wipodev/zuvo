@@ -79,5 +79,14 @@
   "cmd_build_generating_config": "Generating static configuration module...",
   "cmd_build_config_generated": "Static configuration module generated",
   "cmd_build_config_saved": "Compiled configuration saved to",
-  "cmd_build_err_invalid_compiler": "Unsupported compiler specified: {compiler}"
+  "cmd_build_err_invalid_compiler": "Unsupported compiler specified: {compiler}",
+
+  "cmd_package_help": "Orchestrates application packaging processes using configured or specified packagers.",
+  "cmd_package_arg_type_help": "Specify package type (inno, appimage, dmg). Defaults to current OS standard.",
+  "cmd_package_start_title": "Packaging Project: {name}",
+  "cmd_package_type_label": "Packager",
+  "cmd_package_version_label": "Version",
+  "cmd_package_err_unsupported_os": "Unsupported operating system for default packaging: {os}",
+  "cmd_package_err_win_only": "{packager} packaging is only supported on Windows.",
+  "cmd_package_err_invalid_type": "Unsupported package type specified: {type}"
 }
