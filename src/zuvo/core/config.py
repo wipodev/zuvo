@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from zuvo.utils.paths import get_root_dir, resolve_entry_point, to_pkg_path
+from zuvo.utils.paths import get_root_dir, to_pkg_path
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -116,21 +116,15 @@ class Config:
         )
 
         # Extract CLI name and resolve entry_point for build
-        scripts_dict = project.get("scripts", {})
-        if scripts_dict:
-            cli_name = next(iter(scripts_dict)) # TODO: no siempre que haya varios sera que el primero sea el cli_name
-            script_target = scripts_dict[cli_name]
-            entry_point = resolve_entry_point(script_target, root)
-        else:
-            cli_name = name
-            entry_point = "src/app/main.py"
+        cli_name = zuvo_build.get("cli_name", name)
+        entry_point = zuvo_build.get("entry_point", "src/app/main.py")
 
         # Build configurations with defaults fallback
         default_config = cls()
         merged_build = {
             **default_config.build,
-            "entry_point": entry_point,
             **zuvo_build,
+            "entry_point": entry_point,
             "assets": hatch_assets,
         }
 

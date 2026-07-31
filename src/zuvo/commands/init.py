@@ -86,10 +86,11 @@ commands_pkg = "{data['commands_pkg']}"
 
 # Packaging & Compilation Settings (PyInstaller)
 [tool.zuvo.build]
+cli_name = {data['cli_name']}
+entry_point = {data['entry_point']}
 compiler = "pyinstaller"      # Compiler engine used for standalone binary creation
 company_name = "{data['author']}"  # Metadata publisher/company name
 icon = ""                      # Path to .ico or binary icon file
-files = []                     # Additional static data files or assets to bundle
 output_dir = "dist"            # Target directory for compiled binaries
 
 # Windows Installer Settings (Inno Setup)
