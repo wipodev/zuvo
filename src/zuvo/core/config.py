@@ -1,4 +1,4 @@
-import sys
+import sys, uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -47,6 +47,7 @@ class Config:
     # Inno Setup settings ([tool.zuvo.inno])
     inno: dict[str, Any] = field(
         default_factory=lambda: {
+            "app_id": "",
             "inno_path": "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe",
             "app_publisher_url": "",
             "license_file": "",
@@ -109,7 +110,7 @@ class Config:
         # Extract CLI name and resolve entry_point for build
         scripts_dict = project.get("scripts", {})
         if scripts_dict:
-            cli_name = next(iter(scripts_dict))
+            cli_name = next(iter(scripts_dict)) # TODO: no siempre que haya varios sera que el primero sea el cli_name
             script_target = scripts_dict[cli_name]
             entry_point = resolve_entry_point(script_target, root)
         else:
@@ -123,10 +124,13 @@ class Config:
             "entry_point": entry_point,
             **zuvo_build,
         }
-        
+
+        generated_app_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"zuvo.{cli_name}"))
         default_inno = {
             **default_config.inno,
+            "app_id": generated_app_id,
             "default_dir_name": f"{{autopf}}\\{cli_name}",
+            "output_base_filename": f"{cli_name}-Setup",
         }
         merged_inno = {**default_inno, **zuvo_inno}
 
