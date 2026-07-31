@@ -30,7 +30,7 @@ def _build_flags(opts: BuildOptions, root: Path) -> list[str]:
     ]
 
     # Traducciones externas (se copian como datos directos fuera del binario)
-    if opts.opts_locales_dir if hasattr(opts, 'opts_locales_dir') else opts.locales_dir:
+    if opts.locales_dir:
         locales_dir = opts.locales_dir
         rel_locales = (
             locales_dir.relative_to(root)
@@ -59,8 +59,12 @@ def _build_flags(opts: BuildOptions, root: Path) -> list[str]:
     if opts.icon_path and sys.platform == "win32":
         cmd.append(f"--windows-icon-from-ico={opts.icon_path}")
 
-    for extra in opts.extra_files:
-        cmd.append(f"--include-data-files={extra}")
+    # User Defined Assets Inclusion
+    for src_path, dest_rel in opts.assets.items():
+        if src_path.is_dir():
+            cmd.append(f"--include-data-dir={src_path}={dest_rel}")
+        elif src_path.is_file():
+            cmd.append(f"--include-data-files={src_path}={dest_rel}")
 
     cmd.append(str(opts.entry_point))
     return cmd

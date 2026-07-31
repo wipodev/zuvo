@@ -63,11 +63,9 @@ def _build_flags(opts: BuildOptions, root: Path) -> tuple[list[str], Path | None
     if opts.icon_path:
         cmd.append(f"--icon={opts.icon_path}")
 
-    # Additional extra data files
-    for extra in opts.extra_files:
-        if "=" in extra:
-            src_f, dst_f = extra.split("=", 1)
-            cmd.append(f"--add-data={src_f}{sep}{dst_f}")
+    # User Defined Assets Inclusion
+    for src_path, dest_rel in opts.assets.items():
+        cmd.append(f"--add-data={src_path}{sep}{dest_rel}")
 
     # Target entry point script
     cmd.append(str(opts.entry_point))

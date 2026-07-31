@@ -30,21 +30,20 @@ class Config:
     cli_name: str = "cli-app"
     commands_pkg: str = "app.commands"
     commands_config: dict[str, list[str]] = field(default_factory=dict)
-    scripts: dict[str, str] = field(default_factory=dict)
 
-    # Build settings ([tool.zuvo.build])
+    # Build settings
     build: dict[str, Any] = field(
         default_factory=lambda: {
             "compiler": "pyinstaller",
             "entry_point": "src/app/main.py",
             "company_name": "",
             "icon": "",
-            "files": [],
+            "assets": {},
             "output_dir": "dist",
         }
     )
 
-    # Inno Setup settings ([tool.zuvo.inno])
+    # Inno Setup settings
     inno: dict[str, Any] = field(
         default_factory=lambda: {
             "app_id": "",
@@ -68,7 +67,6 @@ class Config:
             "cli_name": self.cli_name,
             "commands_pkg": self.commands_pkg,
             "commands_config": self.commands_config,
-            "scripts": self.scripts,
             "build": self.build,
             "inno": self.inno,
         }
@@ -94,9 +92,19 @@ class Config:
             return cls()
 
         project = raw_data.get("project", {})
-        zuvo = raw_data.get("tool", {}).get("zuvo", {})
+        tool = raw_data.get("tool", {})
+        zuvo = tool.get("zuvo", {})
         zuvo_build = zuvo.get("build", {})
         zuvo_inno = zuvo.get("inno", {})
+
+        # Extract Hatchling assets declaration if available
+        hatch_assets = (
+            tool.get("hatch", {})
+            .get("build", {})
+            .get("targets", {})
+            .get("wheel", {})
+            .get("force-include", {})
+        )
 
         # Extract project name and author
         name = project.get("name", "cli-app")
@@ -123,6 +131,7 @@ class Config:
             **default_config.build,
             "entry_point": entry_point,
             **zuvo_build,
+            "assets": hatch_assets,
         }
 
         generated_app_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"zuvo.{cli_name}"))
@@ -146,7 +155,6 @@ class Config:
             cli_name=cli_name,
             commands_pkg=to_pkg_path(raw_commands_pkg),
             commands_config=zuvo.get("commands", {}),
-            scripts=zuvo.get("scripts", {}),
             build=merged_build,
             inno=merged_inno,
         )

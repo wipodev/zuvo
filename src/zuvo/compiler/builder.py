@@ -21,7 +21,7 @@ class BuildOptions:
     description: str
     copyright: str
     icon_path: Path | None
-    extra_files: list[str] = field(default_factory=list)
+    assets: dict[Path, str] = field(default_factory=dict)
 
     @classmethod
     def from_config(
@@ -46,6 +46,14 @@ class BuildOptions:
         icon = cfg.build.get("icon")
         icon_path = (root / icon) if icon and (root / icon).is_file() else None
 
+        raw_assets: dict[str, str] = cfg.build.get("assets", {})
+        normalized_assets: dict[Path, str] = {}
+
+        for src_rel, dest_rel in raw_assets.items():
+            src_abs = root / src_rel
+            if src_abs.exists():
+                normalized_assets[src_abs] = dest_rel
+
         return cls(
             entry_point=root / cfg.build["entry_point"],
             dist_dir=root / cfg.build.get("output_dir", "dist"),
@@ -58,5 +66,5 @@ class BuildOptions:
             description=cfg.description,
             copyright=cfg.copyright,
             icon_path=icon_path,
-            extra_files=cfg.build.get("files", []),
+            assets=normalized_assets,
         )

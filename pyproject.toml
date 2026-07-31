@@ -15,8 +15,20 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+pypi = ["build==1.5.0", "hatchling==1.31.0"]
+pyinstaller = ["pyinstaller>=6.0.0"]
+nuitka = ["nuitka>=2.0.0"]
+build-tools = [
+    "zuvo[pypi]",
+    "zuvo[pyinstaller]",
+    "zuvo[nuitka]",
+]
 dev = [
     "pytest==9.1.1",
+]
+all = [
+    "zuvo[build-tools]",
+    "zuvo[dev]",
 ]
 
 [project.scripts]
