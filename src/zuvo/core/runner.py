@@ -6,6 +6,7 @@ from rich.console import Console
 from zuvo.core.errors import ExitCode
 from zuvo.core.config import Config, set_config
 from zuvo.core.registry import build_parser_and_run
+from zuvo.utils.paths import get_locales_dir
 from zuvo.i18n import i18n, t
 
 try:
@@ -96,7 +97,7 @@ def run_app(
     cfg = config or COMPILED_CONFIG or Config.load(project_root)
     set_config(cfg)
 
-    target_locales = locales_dir or cfg.locales_dir
+    target_locales = locales_dir or get_locales_dir(cfg.commands_pkg.split(".")[0])
     if target_locales and target_locales.exists():
         i18n.set_locale_dir(target_locales)
 

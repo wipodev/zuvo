@@ -1,5 +1,36 @@
 import sys
 from pathlib import Path
+from importlib.resources import files
+
+
+def get_locales_dir(package_name: str = "app") -> Path:
+    """
+    Resolves the directory containing application translation files.
+
+    Checks for frozen executable environments, local development layouts,
+    or falls back to inspecting the installed Python package resources.
+
+    Args:
+        package_name (str): Root package name used to locate installed resources 
+            in PyPI mode. Defaults to "app".
+
+    Returns:
+        Path: Resolved path pointing to the active locales directory.
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent / "locales"
+
+    if (Path.cwd() / "src").exists() or (Path.cwd() / "locales").exists():
+        return Path.cwd() / "locales"
+
+    try:
+        pkg_locales = Path(str(files(package_name).joinpath("locales")))
+        if pkg_locales.is_dir():
+            return pkg_locales
+    except Exception:
+        pass
+
+    return Path.cwd() / "locales"
 
 
 def get_root_dir(override_path: Path | str | None = None) -> Path:
@@ -38,7 +69,7 @@ def to_pkg_path(path_str: str) -> str:
     Returns:
         str: Clean package dot-notation path (e.g., 'app.commands').
     """
-    clean = path_str.replace("\\", "/").strip("/")    
+    clean = path_str.replace("\\", "/").strip("/")
     if clean.startswith("src/"):
         clean = clean[4:]
         

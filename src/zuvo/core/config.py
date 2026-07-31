@@ -30,7 +30,6 @@ class Config:
     copyright: str = "Copyright (c) 2026"
     cli_name: str = "cli-app"
     commands_pkg: str = "app.commands"
-    locales_dir: Path = field(default_factory=lambda: Path("locales"))
     commands_config: dict[str, list[str]] = field(default_factory=dict)
     scripts: dict[str, str] = field(default_factory=dict)
 
@@ -69,7 +68,6 @@ class Config:
             "copyright": self.copyright,
             "cli_name": self.cli_name,
             "commands_pkg": self.commands_pkg,
-            "locales_dir": str(self.locales_dir),
             "commands_config": self.commands_config,
             "scripts": self.scripts,
             "build": self.build,
@@ -79,10 +77,7 @@ class Config:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Config":
         """Reconstructs a Config instance from a dictionary."""
-        data_copy = data.copy()
-        if "locales_dir" in data_copy:
-            data_copy["locales_dir"] = Path(data_copy["locales_dir"])
-        return cls(**data_copy)
+        return cls(**data.copy())
 
     @classmethod
     def load(cls, project_root: Path | str | None = None) -> "Config":
@@ -91,17 +86,13 @@ class Config:
         toml_path = root / "pyproject.toml"
 
         if not toml_path.is_file() or tomllib is None:
-            config = cls()
-            config.locales_dir = root / "locales"
-            return config
+            return cls()
 
         try:
             with open(toml_path, "rb") as f:
                 raw_data = tomllib.load(f)
         except Exception:
-            config = cls()
-            config.locales_dir = root / "locales"
-            return config
+            return cls()
 
         project = raw_data.get("project", {})
         zuvo = raw_data.get("tool", {}).get("zuvo", {})
@@ -142,7 +133,6 @@ class Config:
         merged_inno = {**default_inno, **zuvo_inno}
 
         raw_commands_pkg = zuvo.get("commands_pkg", "app.commands")
-        raw_locales_dir = zuvo.get("locales_dir", "locales")
 
         return cls(
             name=name,
@@ -154,7 +144,6 @@ class Config:
             copyright=zuvo.get("copyright", "Copyright (c) 2026"),
             cli_name=cli_name,
             commands_pkg=to_pkg_path(raw_commands_pkg),
-            locales_dir=root / raw_locales_dir,
             commands_config=zuvo.get("commands", {}),
             scripts=zuvo.get("scripts", {}),
             build=merged_build,

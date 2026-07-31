@@ -4,6 +4,7 @@ from babel import Locale
 
 from zuvo.utils.json import read_json_safe
 from zuvo.i18n.system_fallback import SYSTEM_FALLBACK
+ZUVO_LOCALES_DIR = Path(__file__).parent.parent / "locales"
 
 
 class I18nManager:
@@ -46,20 +47,37 @@ class I18nManager:
         self._app_fallback.update(fallback_dict)
         self.reload()
 
+    def _load_layered_json(self, base_dir: Path) -> dict[str, str]:
+        """Loads translations from a directory.
+
+        If current_lang is different from fallback_lang, it loads the fallback
+        first and overrides it with current_lang values.
+        """
+        data: dict[str, str] = {}
+
+        fallback_file = base_dir / f"{self.fallback_lang}.json"
+        data.update(read_json_safe(fallback_file))
+
+        if self.current_lang != self.fallback_lang:
+            current_file = base_dir / f"{self.current_lang}.json"
+            data.update(read_json_safe(current_file))
+
+        return data
+
     def reload(self) -> None:
-        """Rebuilds the translation map by combining all layers."""
+        """Rebuilds the translation map by combining all layers in priority order:
+
+        1. SYSTEM_FALLBACK (hardcoded dict)
+        2. Zuvo internal locales (fallback_lang -> current_lang)
+        3. Developer app fallback dict
+        4. User app locales directory (fallback_lang -> current_lang)
+        """
         merged = SYSTEM_FALLBACK.copy()
+        merged.update(self._load_layered_json(ZUVO_LOCALES_DIR))
         merged.update(self._app_fallback)
 
-        if self.locales_dir:
-            loaded_data = read_json_safe(self.locales_dir / f"{self.current_lang}.json")
-
-            # If the system language file does not exist, attempt to load the default fallback language
-            if not loaded_data and self.current_lang != self.fallback_lang:
-                loaded_data = read_json_safe(self.locales_dir / f"{self.fallback_lang}.json")
-
-            if loaded_data:
-                merged.update(loaded_data)
+        if self.locales_dir and self.locales_dir.is_dir():
+            merged.update(self._load_layered_json(self.locales_dir))
 
         self.translations = merged
 
