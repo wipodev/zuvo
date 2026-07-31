@@ -23,12 +23,16 @@ build-tools = [
     "zuvo[pyinstaller]",
     "zuvo[nuitka]",
 ]
-dev = [
+test = [
     "pytest==9.1.1",
+]
+dev = [
+    "zuvo[pypi]",
+    "zuvo[test]",
 ]
 all = [
     "zuvo[build-tools]",
-    "zuvo[dev]",
+    "zuvo[test]",
 ]
 
 [project.scripts]
