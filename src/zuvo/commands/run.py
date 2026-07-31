@@ -2,14 +2,12 @@
 Executes a user CLI application or multicall module in development mode.
 """
 
-from rich.console import Console
 import subprocess
 import sys
 from pathlib import Path
 
-from zuvo.core.config import get_config
+from zuvo.core.config import Config, get_config
 
-console = Console()
 
 # Optional: Override description for i18n key or custom text
 HELP = "cmd_run_help"
@@ -28,14 +26,14 @@ ARGS = [
 ]
 
 
-def run(args):
+def run(args, config: Config | None = None,):
     """
     Executes the user's CLI application in development mode.
 
     Simulates system execution by overriding sys.argv[0] via runpy, ensuring
     full compatibility with standard apps and multicall (busybox-style) modules.
     """
-    cfg = get_config()
+    cfg = config or get_config()
     entry_script = cfg.build.get("entry_point", "src/app/main.py")
     app_target = args.app_target
     extra_args = getattr(args, "extra_args", []) or []

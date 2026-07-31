@@ -1,5 +1,4 @@
-import argparse
-import sys
+import argparse, inspect, sys
 from rich.console import Console
 
 from zuvo.core.config import Config, get_config
@@ -133,7 +132,12 @@ def _dispatch_command(
         sys.exit(int(ExitCode.SUCCESS))
 
     try:
-        selected_cmd.run(args)
+        sig = inspect.signature(selected_cmd.run)
+
+        if "console" in sig.parameters:
+            selected_cmd.run(args, console=out)
+        else:
+            selected_cmd.run(args)
     except Exception as e:
         err_msg = t("cli_error_execution", cmd=args.subcommand, error=e)
         out.print(f"[bold red]{err_msg}[/bold red]")
