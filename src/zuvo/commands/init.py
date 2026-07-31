@@ -10,9 +10,10 @@ from rich.table import Table
 
 from zuvo.i18n import t
 
-console = Console()
+# Default fallback console for standard CLI invocation
+_default_console = Console()
 
-# i18n / Help Key definition
+# i18n Translation key for command help
 HELP = "cmd_init_help"
 
 ARGS = [
@@ -24,14 +25,24 @@ ARGS = [
 ]
 
 
-def _ask(prompt_text: str, default_val: str) -> str:
-    """Helper to prompt the user using Rich with a styled default value."""
+def _ask(prompt_text: str, default_val: str, console: Console) -> str:
+    """
+    Helper to prompt the user using Rich with a styled default value.
+    """
     formatted_prompt = f"[bold cyan]{prompt_text}[/bold cyan]"
     return Prompt.ask(formatted_prompt, default=default_val, console=console)
 
 
 def _build_toml_content(data: dict) -> str:
-    """Builds a formatted pyproject.toml content string."""
+    """
+    Builds a formatted pyproject.toml content string aligned with Config schema.
+    """
+    authors_block = (
+        f'\nauthors = [\n    {{ name = "{data["author"]}" }}\n]'
+        if data["author"]
+        else ""
+    )
+
     return f"""[build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -39,43 +50,61 @@ build-backend = "hatchling.build"
 [project]
 name = "{data['name']}"
 version = "{data['version']}"
-description = "{data['description']}"
-authors = [
-    {{ name = "{data['author']}" }}
-]
+description = "{data['description']}"{authors_block}
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "zuvo",
 ]
 
-# ==============================================================================
-# CONFIGURACIÓN DE ZUVO CLI
-# ==============================================================================
+[project.scripts]
+{data['cli_name']} = "{data['entry_point']}"
 
 [tool.zuvo]
-type = "{data['type']}"
 title = "{data['title']}"
-executable_name = "{data['executable_name']}"
-main = "{data['main']}"
-commands_dir = "{data['commands_dir']}"
-locales_dir = "{data['locales_dir']}"
+copyright = "{data['copyright']}"
+commands_pkg = "{data['commands_pkg']}"
 
 [tool.zuvo.commands]
-default = []
+{data['cli_name']} = []
 
-[tool.zuvo.scripts]
-dev = "python {data['main']}"
+[tool.zuvo.build]
+compiler = "pyinstaller"
+company_name = "{data['author']}"
+icon = ""
+files = []
+output_dir = "dist"
+
+[tool.zuvo.inno]
+inno_path = "C:\\\\Program Files (x86)\\\\Inno Setup 6\\\\ISCC.exe"
+app_publisher_url = ""
+license_file = ""
+default_dir_name = "{data['cli_name']}"
+output_base_filename = "{data['cli_name']}-Setup"
 """
 
 
-def run(args):
-    """Executes the project initialization wizard or creates defaults if -y is provided."""
-    skip_prompts = getattr(args, "yes", False)
-    cwd_name = Path.cwd().name.lower().replace(" ", "-") or "zuvo-app"
+def run(
+    args,
+    console: Console | None = None,
+    project_root: Path | str | None = None,
+) -> None:
+    """
+    Executes the project initialization wizard or creates defaults if -y is provided.
 
-    console.print()
-    console.print(
+    Args:
+        args: Parsed arguments from argument parser.
+        console (Console | None): Rich Console instance for output rendering.
+        config (Config | None): Override Config instance.
+        project_root (Path | str | None): Override project root directory.
+    """
+    out = console or _default_console
+    root = Path(project_root) if project_root else Path.cwd()
+    skip_prompts = getattr(args, "yes", False)
+    cwd_name = root.name.lower().replace(" ", "-") or "cli-app"
+
+    out.print()
+    out.print(
         Panel(
             "[bold magenta]🚀 Zuvo CLI Initializer[/bold magenta]\n"
             f"[dim]Mode:[/dim] [yellow]{'Automatic (-y)' if skip_prompts else 'Interactive Wizard'}[/yellow]",
@@ -84,68 +113,61 @@ def run(args):
         )
     )
 
-    # Configuración por defecto
+    # Base configuration aligned with Config model defaults
     config_data = {
         "name": cwd_name,
         "version": "0.1.0",
         "description": "A modern CLI application built with Zuvo",
         "author": "",
-        "type": "standard",
+        "cli_name": cwd_name,
         "title": cwd_name.replace("-", " ").title(),
-        "executable_name": cwd_name,
-        "main": "src/app/main.py",
-        "commands_dir": "src/app/commands",
-        "locales_dir": "locales",
+        "copyright": "Copyright © 2026",
+        "entry_point": "app.main:main",
+        "commands_pkg": "app.commands",
     }
 
-    # Si no es automático (-y), se ejecuta el asistente interactivo
+    # Interactive wizard mode
     if not skip_prompts:
-        console.print(
+        out.print(
             "[dim]Press ENTER to accept the default values shown in brackets.[/dim]\n"
         )
 
-        config_data["name"] = _ask("Project name", config_data["name"])
-        config_data["version"] = _ask("Version", config_data["version"])
-        config_data["description"] = _ask("Description", config_data["description"])
-        config_data["author"] = _ask("Author", config_data["author"])
-
-        # Muestra el selector rápido de tipo de aplicación
-        config_data["type"] = Prompt.ask(
-            "[bold cyan]Application Type[/bold cyan]",
-            choices=["standard", "module"],
-            default="standard",
-            console=console,
+        config_data["name"] = _ask("Project name", config_data["name"], out)
+        config_data["version"] = _ask("Version", config_data["version"], out)
+        config_data["description"] = _ask(
+            "Description", config_data["description"], out
+        )
+        config_data["author"] = _ask("Author", config_data["author"], out)
+        config_data["cli_name"] = _ask(
+            "CLI command name", config_data["name"], out
+        )
+        config_data["entry_point"] = _ask(
+            "Entry point script (pkg.module:fn)", config_data["entry_point"], out
+        )
+        config_data["title"] = _ask("Application title", config_data["title"], out)
+        config_data["commands_pkg"] = _ask(
+            "Commands package", config_data["commands_pkg"], out
         )
 
-        config_data["executable_name"] = _ask(
-            "Executable name", config_data["executable_name"]
-        )
-        config_data["commands_dir"] = _ask(
-            "Commands directory", config_data["commands_dir"]
-        )
-        config_data["locales_dir"] = _ask(
-            "Locales directory", config_data["locales_dir"]
-        )
+    target_path = root / "pyproject.toml"
 
-    target_path = Path.cwd() / "pyproject.toml"
-
-    # Verificación de sobreescritura
+    # Overwrite check
     if target_path.exists() and not skip_prompts:
         overwrite = Prompt.ask(
             "\n[bold red]⚠️  pyproject.toml already exists. Overwrite?[/bold red]",
             choices=["y", "n"],
             default="n",
-            console=console,
+            console=out,
         )
         if overwrite.lower() != "y":
-            console.print("[yellow]Aborted initialization.[/yellow]\n")
+            out.print("[yellow]Aborted initialization.[/yellow]\n")
             return
 
-    # Escribir el archivo pyproject.toml
+    # Write generated content
     toml_content = _build_toml_content(config_data)
     target_path.write_text(toml_content, encoding="utf-8")
 
-    # Resumen de resultados
+    # Output summary table
     table = Table(
         title="Project Configuration Summary",
         show_header=True,
@@ -157,8 +179,8 @@ def run(args):
     for key, val in config_data.items():
         table.add_row(key, str(val) if val else "[dim]none[/dim]")
 
-    console.print()
-    console.print(table)
-    console.print(
+    out.print()
+    out.print(table)
+    out.print(
         "\n[bold green]✔[/bold green] [white]Successfully generated [/white][bold cyan]pyproject.toml[/bold cyan]!\n"
     )

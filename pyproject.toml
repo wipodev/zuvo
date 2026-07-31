@@ -34,4 +34,4 @@ copyright = "© 2026 WipoDev. All Rights Reserved."
 commands_pkg = "zuvo.commands"
 
 [tool.zuvo.commands]
-zuvo = ["init", "run"]
+zuvo = ["init", "run", "build", "package"]
