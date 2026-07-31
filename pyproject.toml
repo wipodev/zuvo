@@ -27,6 +27,7 @@ packages = ["src/zuvo"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "src/zuvo/template" = "zuvo/template"
+"src/zuvo/locales" = "zuvo/locales"
 
 [tool.zuvo]
 title = "Zuvo Framework"
