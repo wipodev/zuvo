@@ -9,6 +9,7 @@ from rich.prompt import Prompt
 from rich.table import Table
 
 from zuvo.i18n import t
+from zuvo.utils.paths import resolve_entry_point
 
 _default_console = Console()
 
@@ -63,7 +64,7 @@ dependencies = [
 
 # CLI Entrypoint mapping: executable_name = "package.module:function"
 [project.scripts]
-{data['cli_name']} = "{data['entry_point']}"
+{data['cli_name']} = "{data['package_point']}"
 
 # ==============================================================================
 # Zuvo Framework Settings
@@ -131,6 +132,9 @@ def run(
         )
     )
 
+    app_pkg = "app"
+    commands_folder = "commands"
+
     config_data = {
         "name": cwd_name,
         "version": "0.1.0",
@@ -139,7 +143,8 @@ def run(
         "cli_name": cwd_name,
         "title": cwd_name.replace("-", " ").title(),
         "copyright": "Copyright © 2026",
-        "entry_point": "app.main:main",
+        "entry_point": "src/app/main.py",
+        "package_point": "app.main:main",
         "commands_pkg": "app.commands",
     }
 
@@ -157,13 +162,26 @@ def run(
         config_data["cli_name"] = _ask(
             t("cmd_init_prompt_cli_name"), config_data["name"], out
         )
-        config_data["entry_point"] = _ask(
-            t("cmd_init_prompt_entry_point"), config_data["entry_point"], out
-        )
+        app_pkg = _ask(t("cmd_init_prompt_app_pkg"), app_pkg, out).strip()
+        raw_cmd_input = _ask(
+            t("cmd_init_prompt_commands_pkg"), f"{app_pkg}.{commands_folder}", out
+        ).strip()
+
+        if "." in raw_cmd_input:
+            parts = raw_cmd_input.split(".", 1)
+            if parts[0] != app_pkg:
+                out.print(
+                    f"[dim yellow]⚠️ {t('cmd_init_warn_pkg_mismatch', expected=app_pkg)}[/dim yellow]"
+                )
+            commands_folder = parts[1]
+        else:
+            commands_folder = raw_cmd_input
+
         config_data["title"] = _ask(t("cmd_init_prompt_title"), config_data["title"], out)
-        config_data["commands_pkg"] = _ask(
-            t("cmd_init_prompt_commands_pkg"), config_data["commands_pkg"], out
-        )
+
+    config_data["package_point"] = f"{app_pkg}.main:main"
+    config_data["entry_point"] = resolve_entry_point(config_data["package_point"])
+    config_data["commands_pkg"] = f"{app_pkg}.{commands_folder}"
 
     target_path = root / "pyproject.toml"
 
@@ -199,4 +217,4 @@ def run(
         f"[bold cyan]pyproject.toml[/bold cyan]!\n"
     )
 
-    return config_data["commands_pkg"], config_data["entry_point"]
+    return app_pkg, commands_folder

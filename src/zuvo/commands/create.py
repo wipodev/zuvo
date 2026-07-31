@@ -49,15 +49,20 @@ def run(args, console: Console | None = None) -> None:
         out.print(f"[yellow]{t('cmd_create_aborted')}[/yellow]\n")
         return
 
-    commands_pkg, _ = init_result
-    root_pkg_name = commands_pkg.split(".")[0]
+    app_pkg, commands_folder = init_result
 
     template_dir = Path(__file__).resolve().parent.parent / "template"
     src_template = template_dir / "src" / "app"
 
-    dest_pkg_dir = target_dir / "src" / root_pkg_name
+    dest_pkg_dir = target_dir / "src" / app_pkg
 
     shutil.copytree(src_template, dest_pkg_dir)
+
+    if commands_folder != "commands":
+        old_commands_dir = dest_pkg_dir / "commands"
+        new_commands_dir = dest_pkg_dir / commands_folder
+        if old_commands_dir.exists():
+            old_commands_dir.rename(new_commands_dir)
 
     for template_file in template_dir.iterdir():
         if template_file.name == "src":
@@ -69,5 +74,5 @@ def run(args, console: Console | None = None) -> None:
 
     out.print(
         f"[bold green]✔[/bold green] [white]{t('cmd_create_success_prefix')}[/white] "
-        f"[bold cyan]{project_name}[/bold cyan] [white]({root_pkg_name})[/white]\n"
+        f"[bold cyan]{project_name}[/bold cyan] [white]({app_pkg})[/white]\n"
     )

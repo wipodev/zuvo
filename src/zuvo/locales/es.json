@@ -57,6 +57,8 @@
   "cmd_init_prompt_entry_point": "Punto de entrada (pkg.module:fn)",
   "cmd_init_prompt_title": "Título de la aplicación",
   "cmd_init_prompt_commands_pkg": "Paquete de comandos",
+  "cmd_init_prompt_app_pkg": "Nombre del paquete raíz de la aplicación",
+  "cmd_init_warn_pkg_mismatch": "El prefijo no coincide con el paquete raíz. Se usará el paquete '{expected}'",
   "cmd_init_overwrite_warning": "pyproject.toml ya existe. ¿Sobrescribir?",
   "cmd_init_aborted": "Inicialización cancelada.",
   "cmd_init_table_title": "Resumen de Configuración del Proyecto",

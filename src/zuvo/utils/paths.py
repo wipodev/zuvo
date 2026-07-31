@@ -81,7 +81,7 @@ def to_pkg_path(path_str: str) -> str:
     return pkg
 
 
-def resolve_entry_point(script_target: str, root: Path) -> str:
+def resolve_entry_point(script_target: str) -> str:
     """
     Resolves a script target (e.g., 'app.main:main') to a valid relative filesystem path.
     Checks if the source file resides within 'src/' or directly in root.
@@ -96,7 +96,4 @@ def resolve_entry_point(script_target: str, root: Path) -> str:
     module_part = script_target.split(":")[0]
     relative_path = module_part.replace(".", "/") + ".py"
 
-    if (root / "src" / relative_path).is_file():
-        return f"src/{relative_path}"
-
-    return relative_path
+    return f"src/{relative_path}"
