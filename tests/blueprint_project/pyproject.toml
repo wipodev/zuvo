@@ -10,28 +10,17 @@ authors = [
     { name = "WipoDev" }
 ]
 
-# ==============================================================================
-# CONFIGURACIÓN EXCLUSIVA DE ZUVO
-# ==============================================================================
+[project.scripts]
+cli_test = "app.main:main"
 
 [tool.zuvo]
-type = "standar"
 title = "Python CLI Test"
-executable_name = "cli_test"
 copyright = "© 2026 WipoDev. All Rights Reserved."
-main = "src/app/main.py"
-commands_dir = "src/app/commands"
-locales_dir = "locales"
+commands_pkg = "app.commands"
 
-files = [
-    "assets/icon.ico"
-]
-
-# En modo standar se agrupan los comandos bajo la clave 'default'
 [tool.zuvo.commands]
-default = ["install", "create"]
+cli_test = ["install", "create"]
 
-# Scripts ejecutables mediante `zuvo run <nombre>`
-[tool.zuvo.scripts]
-dev = "python src/app/main.py"
-test = "pytest"
+[tool.zuvo.build]
+cli_name = "cli_test"
+entry_point = "src/app/main.py"

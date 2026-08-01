@@ -35,7 +35,6 @@ class TestRunnerBootstrapper:
         test_console = Console(record=True, width=100)
 
         mock_config = Config(
-            app_type="module",
             commands_config={"valid_ctx": []},
         )
 

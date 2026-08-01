@@ -12,7 +12,6 @@ class TestConfig:
 
         assert config.name == "cli-app"
         assert config.version == "0.0.1"
-        assert config.locales_dir == tmp_path / "locales"
 
     def test_load_valid_pyproject_toml(self, tmp_path: Path):
         """Verify loading and parsing custom attributes from pyproject.toml."""
@@ -24,10 +23,8 @@ class TestConfig:
         authors = [{ name = "Carlos" }]
 
         [tool.zuvo]
-        type = "advanced"
         title = "Custom App Title"
-        commands_dir = "src/custom/commands"
-        locales_dir = "my_locales"
+        commands_pkg = "app.commands"
         """
         (tmp_path / "pyproject.toml").write_text(toml_content, encoding="utf-8")
 
@@ -36,10 +33,8 @@ class TestConfig:
         assert config.name == "custom-app"
         assert config.version == "2.1.0"
         assert config.author == "Carlos"
-        assert config.app_type == "advanced"
         assert config.title == "Custom App Title"
-        assert config.commands_pkg == "src.custom.commands"
-        assert config.locales_dir == tmp_path / "my_locales"
+        assert config.commands_pkg == "app.commands"
 
     def test_load_corrupted_pyproject_toml_returns_defaults(self, tmp_path: Path):
         """Verify fallback to default values if pyproject.toml is invalid."""
@@ -55,7 +50,6 @@ class TestConfig:
         config = Config(
             name="dict-app",
             version="1.0.0",
-            locales_dir=Path("custom_locales"),
             commands_config={"default": ["build", "run"]},
         )
 
@@ -64,7 +58,6 @@ class TestConfig:
         assert isinstance(dict_data, dict)
         assert dict_data["name"] == "dict-app"
         assert dict_data["version"] == "1.0.0"
-        assert dict_data["locales_dir"] == "custom_locales"  # Should be converted to str
         assert dict_data["commands_config"] == {"default": ["build", "run"]}
 
     def test_from_dict_deserialization(self):
@@ -72,9 +65,7 @@ class TestConfig:
         raw_dict = {
             "name": "restored-app",
             "version": "3.0.0",
-            "locales_dir": "restored_locales",
-            "commands_pkg": "src.commands",
-            "app_type": "module",
+            "commands_pkg": "app.commands",
         }
 
         config = Config.from_dict(raw_dict)
@@ -82,9 +73,6 @@ class TestConfig:
         assert isinstance(config, Config)
         assert config.name == "restored-app"
         assert config.version == "3.0.0"
-        assert isinstance(config.locales_dir, Path)  # Should be converted back to Path
-        assert config.locales_dir == Path("restored_locales")
-        assert config.app_type == "module"
 
     def test_global_registry_set_and_get(self):
         """Verify setting and retrieving global config instance."""
@@ -98,5 +86,5 @@ class TestConfig:
         """Verify RuntimeError is raised if get_config is called before set_config."""
         monkeypatch.setattr("zuvo.core.config._instance", None)
 
-        with pytest.raises(RuntimeError, match="La configuración no ha sido inicializada"):
+        with pytest.raises(RuntimeError, match="Configuration has not been initialized with set_config()."):
             get_config()

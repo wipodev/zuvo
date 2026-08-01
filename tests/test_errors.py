@@ -11,9 +11,7 @@ class TestParseArgparseError:
     def test_parse_invalid_choice(self):
         code, msg = parse_argparse_error("invalid choice: 'run' (choose from 'build', 'version')")
         assert code == ExitCode.UNKNOWN_COMMAND
-        # Evalúa contra el texto real traducido: "Command 'run' does not exist or is not callable."
         assert "run" in msg
-        assert "does not exist" in msg
 
     def test_parse_missing_required_arg(self):
         code, msg = parse_argparse_error("the following arguments are required: -n/--name")

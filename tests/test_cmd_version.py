@@ -12,7 +12,7 @@ class TestVersionCommand:
             title="Zuvo Test",
             version="1.2.3",
             name="zuvo-test",
-            executable_name="zuvo_cli",
+            cli_name="zuvo_cli",
             description="Test description",
             author="Developer",
             copyright="2026 Zuvo",

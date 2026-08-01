@@ -82,5 +82,5 @@ class TestGetRootDir:
 
     def test_to_pkg_path_conversion(self):
             """Verify converting filesystem paths to Python package paths."""
-            assert to_pkg_path("src/app/commands") == "src.app.commands"
-            assert to_pkg_path("src\\app\\commands") == "src.app.commands"
+            assert to_pkg_path("src/app/commands") == "app.commands"
+            assert to_pkg_path("src\\app\\commands") == "app.commands"
