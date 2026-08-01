@@ -67,6 +67,13 @@
   "cmd_init_val_none": "ninguno",
   "cmd_init_success_prefix": "¡Se ha generado con éxito",
 
+  "cmd_create_help": "Crea un nuevo proyecto de Zuvo CLI usando la plantilla estándar.",
+  "cmd_create_arg_name_help": "Nombre del proyecto a crear",
+  "cmd_create_arg_yes_help": "Omitir confirmaciones e instalar usando valores por defecto",
+  "cmd_create_err_dir_not_empty": "El directorio objetivo existe y no está vacío",
+  "cmd_create_aborted": "Creación del proyecto abortada.",
+  "cmd_create_success_prefix": "Proyecto creado exitosamente en",
+
   "cmd_install_help": "Instala paquetes de Python y actualiza las dependencias en pyproject.toml, o restaura las dependencias del proyecto si no se especifica ningún paquete.",
   "cmd_install_arg_packages_help": "Nombres de los paquetes a instalar (ej. requests, rich>=10.0).",
   "cmd_install_arg_dev_help": "Instalar paquetes como dependencias de desarrollo.",
