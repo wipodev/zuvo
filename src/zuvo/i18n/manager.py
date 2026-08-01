@@ -60,7 +60,8 @@ class I18nManager:
 
         if self.current_lang != self.fallback_lang:
             current_file = base_dir / f"{self.current_lang}.json"
-            data.update(read_json_safe(current_file))
+            if current_file.is_file():
+                data.update(read_json_safe(current_file))
 
         return data
 

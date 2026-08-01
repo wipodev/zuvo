@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "zuvo"
-version = "0.0.1.dev1"
+version = "0.1.0"
 description = "Zero-boilerplate CLI framework with i18n and compilation support"
 authors = [{ name = "wipodev", email = "ajwipo@gmail.com" }]
 readme = "README.md"

@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from zuvo.core.config import Config, get_config
+from zuvo.core.config import Config
 
 
 HELP = "cmd_run_help"
@@ -32,7 +32,7 @@ def run(args, config: Config | None = None,):
     Simulates system execution by overriding sys.argv[0] via runpy, ensuring
     full compatibility with standard apps and multicall (busybox-style) modules.
     """
-    cfg = config or get_config()
+    cfg = config or Config.load(Path.cwd())
     entry_script = cfg.build.get("entry_point", "src/app/main.py")
     app_target = args.app_target
     extra_args = getattr(args, "extra_args", []) or []

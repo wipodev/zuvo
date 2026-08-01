@@ -55,7 +55,13 @@ def load_command_modules(
     out = console or _default_console
 
     # Ensure current working directory is in sys.path to allow user app imports
-    root_path = str(Path(project_root).resolve()) if project_root else str(Path.cwd().resolve())
+    base_dir = Path(project_root).resolve() if project_root else Path.cwd().resolve()
+    root_path = str(base_dir)
+
+    src_path = str(base_dir / "src")
+    if (base_dir / "src").is_dir() and src_path not in sys.path:
+        sys.path.insert(0, src_path)
+
     if root_path not in sys.path:
         sys.path.insert(0, root_path)
 
