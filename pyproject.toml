@@ -52,7 +52,7 @@ copyright = "© 2026 WipoDev. All Rights Reserved."
 commands_pkg = "zuvo.commands"
 
 [tool.zuvo.commands]
-zuvo = ["init", "create", "install", "run", "build", "package"]
+zuvo = ["init", "create", "install", "uninstall", "run", "build", "package", "list"]
 
 [tool.zuvo.build]
 cli_name = "zuvo"

@@ -6,7 +6,7 @@ from rich.console import Console
 from zuvo.core.errors import ExitCode
 from zuvo.core.config import Config, set_config
 from zuvo.core.registry import build_parser_and_run
-from zuvo.utils.paths import get_locales_dir
+from zuvo.utils.paths import get_locales_dir, resolve_command_module
 from zuvo.i18n import i18n, t
 
 try:
@@ -38,6 +38,7 @@ def get_invocation_name(argv_0: str | None = None, fallback: str = "app") -> str
 def load_command_modules(
     command_names: list[str],
     package_path: str,
+    app_name: str = "",
     project_root: Path | str | None = None,
     console: Console | None = None,
 ) -> dict[str, object]:
@@ -67,7 +68,10 @@ def load_command_modules(
 
     commands = {}
     for cmd_name in command_names:
-        module_path = f"{package_path}.{cmd_name}"
+        module_path, exists = resolve_command_module(
+            package_path, app_name, cmd_name
+        )
+        if not exists: continue
         try:
             mod = importlib.import_module(module_path)
             if hasattr(mod, "run") and callable(mod.run):
@@ -115,13 +119,14 @@ def run_app(
         sys.exit(int(ExitCode.UNKNOWN_CONTEXT))
 
     cmd_list = cfg.commands_config.get(invoked_as, [])
-    package_path = (
-        f"{cfg.commands_pkg}.{invoked_as}"
-        if len(cfg.commands_config) > 1
-        else cfg.commands_pkg
-    )
 
-    commands_map = load_command_modules(cmd_list, package_path, project_root=project_root, console=out)
+    commands_map = load_command_modules(
+        cmd_list,
+        cfg.commands_pkg,
+        app_name=invoked_as,
+        project_root=project_root,
+        console=out,
+    )
     build_parser_and_run(commands_map, invoked_as, argv=raw_argv, console=out)
 
 
