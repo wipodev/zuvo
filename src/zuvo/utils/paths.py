@@ -4,15 +4,13 @@ from importlib.resources import files
 
 
 def get_locales_dir(package_name: str = "app") -> Path:
-    """
-    Resolves the directory containing application translation files.
+    """Resolves the directory containing application translation files.
 
-    Checks for frozen executable environments, local development layouts,
-    or falls back to inspecting the installed Python package resources.
+    Checks for frozen executable environments, local development layouts
+    (including src-layout), or falls back to inspecting installed Python package resources.
 
     Args:
-        package_name (str): Root package name used to locate installed resources 
-            in PyPI mode. Defaults to "app".
+        package_name (str): Root package name used to locate installed resources.
 
     Returns:
         Path: Resolved path pointing to the active locales directory.
@@ -20,9 +18,17 @@ def get_locales_dir(package_name: str = "app") -> Path:
     if getattr(sys, "frozen", False):
         return Path(sys.executable).parent / "locales"
 
-    if (Path.cwd() / "src").exists() or (Path.cwd() / "locales").exists():
-        return Path.cwd() / "locales"
+    # 1. Local development layout check (src/package_name/locales)
+    src_locales = Path.cwd() / "src" / package_name / "locales"
+    if src_locales.is_dir():
+        return src_locales
 
+    # 2. Flat development layout check (package_name/locales)
+    flat_locales = Path.cwd() / package_name / "locales"
+    if flat_locales.is_dir():
+        return flat_locales
+
+    # 3. Installed package lookup (via importlib.resources)
     try:
         pkg_locales = Path(str(files(package_name).joinpath("locales")))
         if pkg_locales.is_dir():
@@ -30,7 +36,7 @@ def get_locales_dir(package_name: str = "app") -> Path:
     except Exception:
         pass
 
-    return Path.cwd() / "locales"
+    return flat_locales
 
 
 def get_root_dir(override_path: Path | str | None = None) -> Path:
