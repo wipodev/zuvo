@@ -168,5 +168,30 @@
   "cmd_package_innosetup_success_title": "Package Complete",
   "cmd_package_innosetup_success_msg": "Installer generated successfully!",
   "cmd_package_innosetup_location_label": "Location",
-  "cmd_package_innosetup_failed_msg": "Failed to build Inno Setup package."
+  "cmd_package_innosetup_failed_msg": "Failed to build Inno Setup package.",
+
+  "cmd_docs_help": "Generates structured documentation for registered CLI commands.",
+  "cmd_docs_arg_out": "Output file path or name where the documentation will be saved.",
+  "cmd_docs_arg_format": "Export format for the documentation (markdown, json).",
+  "cmd_docs_arg_lang": "Language code to extract descriptions and text metadata.",
+  "cmd_docs_arg_app": "Filter documentation generation to a specific application.",
+  "cmd_docs_status_generating": "Generating CLI documentation...",
+  "cmd_docs_msg_success": "Documentation successfully generated at '{path}'.",
+
+  "docs_prop_output": "Output File",
+  "docs_prop_format": "Format",
+  "docs_prop_apps": "Applications Processed",
+  "docs_prop_commands": "Total Commands",
+  "docs_md_main_title": "CLI Documentation",
+  "docs_md_auto_generated": "Generated automatically with `zuvo docs`.",
+  "docs_md_label_application": "Application",
+  "docs_md_label_file": "File",
+  "docs_md_label_flags": "Flags & Arguments",
+  "docs_md_col_flag": "Option / Flag",
+  "docs_md_col_desc": "Description",
+  "docs_md_col_default": "Default",
+  "docs_md_col_choices": "Choices",
+  "docs_md_col_required": "Required",
+  "docs_md_val_yes": "Yes",
+  "docs_md_val_no": "No"
 }

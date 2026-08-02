@@ -168,5 +168,30 @@
   "cmd_package_innosetup_success_title": "Paquete Completado",
   "cmd_package_innosetup_success_msg": "¡Instalador generado con éxito!",
   "cmd_package_innosetup_location_label": "Ubicación",
-  "cmd_package_innosetup_failed_msg": "Error al construir el paquete Inno Setup."
+  "cmd_package_innosetup_failed_msg": "Error al construir el paquete Inno Setup.",
+
+  "cmd_docs_help": "Genera documentación estructurada para los comandos registrados del CLI.",
+  "cmd_docs_arg_out": "Ruta o nombre del archivo de salida donde se guardará la documentación.",
+  "cmd_docs_arg_format": "Formato de exportación para la documentación (markdown, json).",
+  "cmd_docs_arg_lang": "Idioma en el que se extraerán las descripciones y textos.",
+  "cmd_docs_arg_app": "Filtra la generación de documentación a una aplicación específica.",
+  "cmd_docs_status_generating": "Generando documentación del CLI...",
+  "cmd_docs_msg_success": "Documentación generada exitosamente en '{path}'.",
+
+  "docs_prop_output": "Archivo de salida",
+  "docs_prop_format": "Formato",
+  "docs_prop_apps": "Aplicaciones procesadas",
+  "docs_prop_commands": "Comandos documentados",
+  "docs_md_main_title": "Documentación de comandos CLI",
+  "docs_md_auto_generated": "Generado automáticamente con `zuvo docs`.",
+  "docs_md_label_application": "Aplicación",
+  "docs_md_label_file": "Archivo",
+  "docs_md_label_flags": "Banderas y Argumentos",
+  "docs_md_col_flag": "Opción / Bandera",
+  "docs_md_col_desc": "Descripción",
+  "docs_md_col_default": "Por defecto",
+  "docs_md_col_choices": "Opciones permitidas",
+  "docs_md_col_required": "Requerido",
+  "docs_md_val_yes": "Sí",
+  "docs_md_val_no": "No"
 }

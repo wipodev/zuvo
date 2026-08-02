@@ -4,46 +4,33 @@ from rich.table import Table
 from rich.text import Text
 
 from zuvo.core.config import Config, get_config
+from zuvo.core.inspector import ArgumentDoc, CommandDoc, extract_command_doc
 from zuvo.i18n import t
 
 _default_console = Console()
 
 
-def _get_clean_doc(cmd_module: object) -> str:
-    """Extracts a command description from HELP, docstrings, or default value."""
-    help_attr = getattr(cmd_module, "HELP", None)
-    if help_attr:
-        return t(str(help_attr).strip())
-
-    doc = None
-    if hasattr(cmd_module, "run"):
-        doc = getattr(cmd_module.run, "__doc__", None)
-    if not doc:
-        doc = getattr(cmd_module, "__doc__", None)
-
-    if not doc:
-        return t("help_no_description")
-
-    return str(doc).strip()
-
-
 # --- Render Helpers: General Help ---
 
 def _build_commands_table(commands_map: dict) -> Table:
-    """Creates the available commands table for general help."""
+    """
+    Creates the available commands table for general help using inspector metadata.
+    """
     table = Table(show_header=True, header_style="bold cyan", box=None, pad_edge=False)
     table.add_column(t("help_col_command"), style="bold green", width=16)
     table.add_column(t("help_col_description"), style="white")
 
     for cmd_name, cmd_module in commands_map.items():
-        doc = _get_clean_doc(cmd_module)
-        table.add_row(cmd_name, doc)
+        cmd_info: CommandDoc = extract_command_doc(cmd_name, cmd_module)
+        table.add_row(cmd_info.name, cmd_info.description)
 
     return table
 
 
 def _build_global_options_table() -> Table:
-    """Creates the global options table (-h, -v)."""
+    """
+    Creates the global options table (-h, -v).
+    """
     options_table = Table(show_header=True, header_style="bold cyan", box=None, pad_edge=False)
     options_table.add_column(t("help_col_option"), style="bold yellow", width=18)
     options_table.add_column(t("help_col_description"), style="white")
@@ -55,7 +42,9 @@ def _build_global_options_table() -> Table:
 
 
 def _build_general_header_panel(invoked_as: str, cfg: Config | None = None) -> Panel:
-    """Constructs the top welcome/usage panel for general CLI help."""
+    """
+    Constructs the top welcome/usage panel for general CLI help.
+    """
     cfg = cfg or get_config()
 
     content = Text()
@@ -66,8 +55,8 @@ def _build_general_header_panel(invoked_as: str, cfg: Config | None = None) -> P
     if cfg.description:
         content.append(f"\n{cfg.description}", style="dim")
 
-    panel_title = (f"[bold magenta]🚀 {cfg.title or 'CLI'}[/bold magenta]")
-    panel_subtitle = (f"[italic gray]v{cfg.version or '0.0.0'}[/italic gray]")
+    panel_title = f"[bold magenta]🚀 {cfg.title or 'CLI'}[/bold magenta]"
+    panel_subtitle = f"[italic gray]v{cfg.version or '0.0.0'}[/italic gray]"
 
     return Panel(
         content,
@@ -78,8 +67,15 @@ def _build_general_header_panel(invoked_as: str, cfg: Config | None = None) -> P
     )
 
 
-def _show_general_help(commands_map: dict, invoked_as: str, console: Console, cfg: Config | None = None) -> None:
-    """Renders the general CLI help menu."""
+def _show_general_help(
+    commands_map: dict,
+    invoked_as: str,
+    console: Console,
+    cfg: Config | None = None,
+) -> None:
+    """
+    Renders the general CLI help menu.
+    """
     console.print()
     console.print(_build_general_header_panel(invoked_as, cfg=cfg))
 
@@ -95,35 +91,42 @@ def _show_general_help(commands_map: dict, invoked_as: str, console: Console, cf
 
 # --- Render Helpers: Subcommand Help ---
 
-def _build_command_options_table(args_def: list[dict]) -> Table:
-    """Creates the options/flags table specific to a subcommand."""
+def _build_command_options_table(arguments: list[ArgumentDoc]) -> Table:
+    """
+    Creates the options/flags table specific to a subcommand.
+    """
     table = Table(show_header=True, header_style="bold cyan", box=None, pad_edge=False)
     table.add_column(t("help_col_option_flag"), style="bold yellow", width=22)
     table.add_column(t("help_col_description"), style="white")
 
-    for arg in args_def:
-        flags = ", ".join(arg.get("flags", []))
-        help_raw = arg.get("help")
-        help_text = t(help_raw) if help_raw else t("help_no_description")
+    for arg in arguments:
+        flags_str = ", ".join(arg.flags)
+        help_text = arg.description or t("help_no_description")
 
-        if arg.get("required"):
+        if arg.required:
             required_tag = t("help_required_tag")
             help_text += f" [bold red]{required_tag}[/bold red]"
 
-        table.add_row(flags, help_text)
+        table.add_row(flags_str, help_text)
 
     return table
 
 
-def _generate_command_example(cmd_name: str, args_def: list[dict], invoked_as: str) -> str:
-    """Dynamically generates a string example for subcommand usage."""
+def _generate_command_example(
+    cmd_name: str,
+    arguments: list[ArgumentDoc],
+    invoked_as: str,
+) -> str:
+    """
+    Dynamically generates a string example for subcommand usage using ArgumentDoc models.
+    """
     tokens = [f"[green]{invoked_as}[/green]", f"[yellow]{cmd_name}[/yellow]"]
 
-    if not args_def:
+    if not arguments:
         return " ".join(tokens)
 
-    first_arg = args_def[0]
-    flags = first_arg.get("flags", [])
+    first_arg = arguments[0]
+    flags = first_arg.flags
 
     if flags:
         long_flag = next((f for f in flags if f.startswith("--")), None)
@@ -132,7 +135,10 @@ def _generate_command_example(cmd_name: str, args_def: list[dict], invoked_as: s
 
         if display_flag.startswith("-"):
             tokens.append(f"[cyan]{display_flag}[/cyan]")
-            action = first_arg.get("action", "")
+            # Check raw module parameter definition if action attribute is stored
+            raw_args = getattr(first_arg, "_raw_dict", {})
+            action = raw_args.get("action", "") if isinstance(raw_args, dict) else ""
+
             if action not in ("store_true", "store_false"):
                 ref_flag = long_flag or display_flag
                 clean_var = ref_flag.lstrip("-").replace("-", "_")
@@ -143,18 +149,24 @@ def _generate_command_example(cmd_name: str, args_def: list[dict], invoked_as: s
     return " ".join(tokens)
 
 
-def _show_command_help(cmd_name: str, cmd_module: object, invoked_as: str, console: Console) -> None:
-    """Renders detailed help for a specific subcommand."""
-    doc = _get_clean_doc(cmd_module)
-    args_def = getattr(cmd_module, "ARGS", [])
+def _show_command_help(
+    cmd_name: str,
+    cmd_module: object,
+    invoked_as: str,
+    console: Console,
+) -> None:
+    """
+    Renders detailed help for a specific subcommand.
+    """
+    cmd_info: CommandDoc = extract_command_doc(cmd_name, cmd_module)
 
     content = Text()
     content.append(t("help_usage_label"), style="bold white")
-    cmd_syntax = t("help_usage_syntax_command", prog=invoked_as, cmd=cmd_name)
+    cmd_syntax = t("help_usage_syntax_command", prog=invoked_as, cmd=cmd_info.name)
     content.append(f"{cmd_syntax}\n\n", style="bold gold1")
-    content.append(doc, style="white")
+    content.append(cmd_info.description, style="white")
 
-    panel_title = t("help_panel_cmd_title", cmd=cmd_name)
+    panel_title = t("help_panel_cmd_title", cmd=cmd_info.name)
 
     console.print()
     console.print(
@@ -166,19 +178,25 @@ def _show_command_help(cmd_name: str, cmd_module: object, invoked_as: str, conso
         )
     )
 
-    if args_def:
+    if cmd_info.arguments:
         console.print(f"\n[bold cyan]{t('help_header_command_options')}[/bold cyan]")
-        console.print(_build_command_options_table(args_def))
+        console.print(_build_command_options_table(cmd_info.arguments))
 
-    example_str = _generate_command_example(cmd_name, args_def, invoked_as)
+    example_str = _generate_command_example(cmd_info.name, cmd_info.arguments, invoked_as)
     console.print(f"\n[bold gray]{t('help_example_label')}[/bold gray]")
     console.print(f"  [dim]$[/dim] {example_str}\n")
 
 
 # --- Main Orchestrator ---
 
-def run(args=None, console: Console | None = None, config: Config | None = None) -> None:
-    """Main help orchestrator."""
+def run(
+    args: str | None = None,
+    console: Console | None = None,
+    config: Config | None = None,
+) -> None:
+    """
+    Main help orchestrator.
+    """
     out = console or _default_console
     cfg = config or get_config()
 
