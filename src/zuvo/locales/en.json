@@ -66,6 +66,7 @@
   "cmd_init_table_col_value": "Value",
   "cmd_init_val_none": "none",
   "cmd_init_success_prefix": "Successfully generated",
+  "cmd_init_msg_cancelled": "Initialization process cancelled by user.",
 
   "cmd_create_help": "Creates a new Zuvo CLI project workspace using the standard template.",
   "cmd_create_arg_name_help": "Name of the project to create",

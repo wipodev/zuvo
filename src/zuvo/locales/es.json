@@ -66,6 +66,7 @@
   "cmd_init_table_col_value": "Valor",
   "cmd_init_val_none": "ninguno",
   "cmd_init_success_prefix": "¡Se ha generado con éxito",
+  "cmd_init_msg_cancelled": "Proceso de inicialización cancelado por el usuario.",
 
   "cmd_create_help": "Crea un nuevo proyecto de Zuvo CLI usando la plantilla estándar.",
   "cmd_create_arg_name_help": "Nombre del proyecto a crear",

@@ -2,6 +2,7 @@
 Initializes a new Zuvo CLI project by generating a pyproject.toml configuration file.
 """
 
+import sys
 from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
@@ -45,9 +46,32 @@ def _build_toml_content(data: dict) -> str:
     return f"""# ==============================================================================
 # Build System Configuration
 # ==============================================================================
+# Zuvo uses 'hatchling' by default for PyPI packaging.
+# Note: 'zuvo build' relies on standard PEP 517 tools and will work with any
+# backend (e.g., setuptools, flit, poetry-core). However, if you change the
+# backend, you MUST update this table and the target packaging rules below
+# according to your new build backend's specification.
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+# ==============================================================================
+# Hatchling Packaging Rules (Default Engine)
+# ==============================================================================
+# Maps the package directory under src/ to the distribution root.
+[tool.hatch.build.targets.wheel]
+packages = ["src/{data['app_pkg']}"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/{data['app_pkg']}" = "{data['app_pkg']}"
+
+# --- Extra files inclusion (Optional) ---
+# Uncomment and adjust the sections below if your package needs to include
+# external assets or data files outside the package directory.
+#
+# [tool.hatch.build.targets.wheel.force-include]
+# "assets/logo.png" = "{data['app_pkg']}/assets/logo.png"
+# "docs/USER_GUIDE.md" = "{data['app_pkg']}/docs/USER_GUIDE.md"
 
 # ==============================================================================
 # Standard Project Metadata (PEP 621)
@@ -83,11 +107,11 @@ commands_pkg = "{data['commands_pkg']}"
 [tool.zuvo.commands]
 {data['cli_name']} = []
 
-# Packaging & Compilation Settings (PyInstaller)
+# Packaging & Compilation Settings (pypi)
 [tool.zuvo.build]
 cli_name = "{data['cli_name']}"        # Name of the output executable binary
 entry_point = "{data['entry_point']}"   # Main Python script path used as compilation entry point
-compiler = "pyinstaller"      # Compiler engine used for standalone binary creation
+compiler = "pypi"              # Compiler engine used for standalone binary creation
 company_name = "{data['author']}"  # Metadata publisher/company name
 icon = ""                      # Path to .ico or binary icon file
 output_dir = "dist"            # Target directory for compiled binaries
@@ -143,78 +167,85 @@ def run(
         "cli_name": cwd_name,
         "title": cwd_name.replace("-", " ").title(),
         "copyright": "Copyright © 2026",
+        "app_pkg": "app",
         "entry_point": "src/app/main.py",
         "package_point": "app.main:main",
         "commands_pkg": "app.commands",
     }
 
-    if not skip_prompts:
+    try:
+        if not skip_prompts:
+            out.print(
+                f"[dim]{t('cmd_init_prompt_enter_hint')}[/dim]\n"
+            )
+
+            config_data["name"] = _ask(t("cmd_init_prompt_name"), config_data["name"], out)
+            config_data["version"] = _ask(t("cmd_init_prompt_version"), config_data["version"], out)
+            config_data["description"] = _ask(
+                t("cmd_init_prompt_description"), config_data["description"], out
+            )
+            config_data["author"] = _ask(t("cmd_init_prompt_author"), config_data["author"], out)
+            config_data["cli_name"] = _ask(
+                t("cmd_init_prompt_cli_name"), config_data["name"], out
+            )
+            app_pkg = _ask(t("cmd_init_prompt_app_pkg"), app_pkg, out).strip()
+            raw_cmd_input = _ask(
+                t("cmd_init_prompt_commands_pkg"), f"{app_pkg}.{commands_folder}", out
+            ).strip()
+
+            if "." in raw_cmd_input:
+                parts = raw_cmd_input.split(".", 1)
+                if parts[0] != app_pkg:
+                    out.print(
+                        f"[dim yellow]⚠️ {t('cmd_init_warn_pkg_mismatch', expected=app_pkg)}[/dim yellow]"
+                    )
+                commands_folder = parts[1]
+            else:
+                commands_folder = raw_cmd_input
+
+            config_data["title"] = _ask(t("cmd_init_prompt_title"), config_data["title"], out)
+
+        config_data["package_point"] = f"{app_pkg}.main:main"
+        config_data["entry_point"] = resolve_entry_point(config_data["package_point"])
+        config_data["commands_pkg"] = f"{app_pkg}.{commands_folder}"
+        config_data["app_pkg"] = app_pkg
+
+        target_path = root / "pyproject.toml"
+
+        if target_path.exists() and not skip_prompts:
+            overwrite = Prompt.ask(
+                f"\n[bold red]⚠️  {t('cmd_init_overwrite_warning')}[/bold red]",
+                choices=["y", "n"],
+                default="n",
+                console=out,
+            )
+            if overwrite.lower() != "y":
+                out.print(f"[yellow]{t('cmd_init_aborted')}[/yellow]\n")
+                return
+
+        toml_content = _build_toml_content(config_data)
+        target_path.write_text(toml_content, encoding="utf-8")
+
+        table = Table(
+            title=t("cmd_init_table_title"),
+            show_header=True,
+            header_style="bold cyan",
+        )
+        table.add_column(t("cmd_init_table_col_property"), style="bold yellow", width=20)
+        table.add_column(t("cmd_init_table_col_value"), style="white")
+
+        for key, val in config_data.items():
+            table.add_row(key, str(val) if val else f"[dim]{t('cmd_init_val_none')}[/dim]")
+
+        out.print()
+        out.print(table)
         out.print(
-            f"[dim]{t('cmd_init_prompt_enter_hint')}[/dim]\n"
+            f"\n[bold green]✔[/bold green] [white]{t('cmd_init_success_prefix')} [/white]"
+            f"[bold cyan]pyproject.toml[/bold cyan]!\n"
         )
 
-        config_data["name"] = _ask(t("cmd_init_prompt_name"), config_data["name"], out)
-        config_data["version"] = _ask(t("cmd_init_prompt_version"), config_data["version"], out)
-        config_data["description"] = _ask(
-            t("cmd_init_prompt_description"), config_data["description"], out
-        )
-        config_data["author"] = _ask(t("cmd_init_prompt_author"), config_data["author"], out)
-        config_data["cli_name"] = _ask(
-            t("cmd_init_prompt_cli_name"), config_data["name"], out
-        )
-        app_pkg = _ask(t("cmd_init_prompt_app_pkg"), app_pkg, out).strip()
-        raw_cmd_input = _ask(
-            t("cmd_init_prompt_commands_pkg"), f"{app_pkg}.{commands_folder}", out
-        ).strip()
+        return app_pkg, commands_folder
 
-        if "." in raw_cmd_input:
-            parts = raw_cmd_input.split(".", 1)
-            if parts[0] != app_pkg:
-                out.print(
-                    f"[dim yellow]⚠️ {t('cmd_init_warn_pkg_mismatch', expected=app_pkg)}[/dim yellow]"
-                )
-            commands_folder = parts[1]
-        else:
-            commands_folder = raw_cmd_input
-
-        config_data["title"] = _ask(t("cmd_init_prompt_title"), config_data["title"], out)
-
-    config_data["package_point"] = f"{app_pkg}.main:main"
-    config_data["entry_point"] = resolve_entry_point(config_data["package_point"])
-    config_data["commands_pkg"] = f"{app_pkg}.{commands_folder}"
-
-    target_path = root / "pyproject.toml"
-
-    if target_path.exists() and not skip_prompts:
-        overwrite = Prompt.ask(
-            f"\n[bold red]⚠️  {t('cmd_init_overwrite_warning')}[/bold red]",
-            choices=["y", "n"],
-            default="n",
-            console=out,
-        )
-        if overwrite.lower() != "y":
-            out.print(f"[yellow]{t('cmd_init_aborted')}[/yellow]\n")
-            return
-
-    toml_content = _build_toml_content(config_data)
-    target_path.write_text(toml_content, encoding="utf-8")
-
-    table = Table(
-        title=t("cmd_init_table_title"),
-        show_header=True,
-        header_style="bold cyan",
-    )
-    table.add_column(t("cmd_init_table_col_property"), style="bold yellow", width=20)
-    table.add_column(t("cmd_init_table_col_value"), style="white")
-
-    for key, val in config_data.items():
-        table.add_row(key, str(val) if val else f"[dim]{t('cmd_init_val_none')}[/dim]")
-
-    out.print()
-    out.print(table)
-    out.print(
-        f"\n[bold green]✔[/bold green] [white]{t('cmd_init_success_prefix')} [/white]"
-        f"[bold cyan]pyproject.toml[/bold cyan]!\n"
-    )
-
-    return app_pkg, commands_folder
+    except KeyboardInterrupt:
+        out.print(f"\n[dim]{t('cmd_init_msg_cancelled')}[/dim]\n")
+        sys.exit(130)
