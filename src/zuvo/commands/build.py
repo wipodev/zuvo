@@ -92,7 +92,7 @@ def run(
 
     selected_compiler = (
         getattr(args, "compiler", None)
-        or cfg.build.get("compiler", "pyinstaller")
+        or cfg.build.get("compiler", "pypi")
     ).lower()
 
     if getattr(args, "entry", None):

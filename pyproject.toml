@@ -42,9 +42,8 @@ zuvo = "zuvo.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/zuvo"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"src/zuvo/template" = "zuvo/template"
-"src/zuvo/locales" = "zuvo/locales"
+[tool.hatch.build.targets.wheel.sources]
+"src/zuvo" = "zuvo"
 
 [tool.zuvo]
 title = "Zuvo Framework"
@@ -52,7 +51,7 @@ copyright = "© 2026 WipoDev. All Rights Reserved."
 commands_pkg = "zuvo.commands"
 
 [tool.zuvo.commands]
-zuvo = ["init", "create", "install", "uninstall", "run", "build", "package", "list", "docs"]
+zuvo = ["init", "create", "install", "uninstall", "run", "build", "package", "publish", "list", "docs"]
 
 [tool.zuvo.build]
 cli_name = "zuvo"
