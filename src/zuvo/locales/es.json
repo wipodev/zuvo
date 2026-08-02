@@ -93,6 +93,7 @@
   "cmd_install_success_sync": "¡Dependencias del proyecto sincronizadas con éxito!",
   "cmd_install_failed_sync": "Error al sincronizar las dependencias del proyecto.",
   "cmd_install_err_missing_pyproject": "No se encontró pyproject.toml en: {path}",
+  "cmd_install_arg_yes_help": "Desactiva los prompts interactivos pasando la bandera --no-input a pip.",
 
   "cmd_uninstall_help": "Desinstala paquetes de Python del entorno y elimina las dependencias de pyproject.toml.",
   "cmd_uninstall_arg_packages_help": "Uno o más nombres de paquetes a desinstalar.",

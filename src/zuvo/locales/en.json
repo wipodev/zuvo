@@ -93,6 +93,7 @@
   "cmd_install_success_sync": "Project dependencies synchronized successfully!",
   "cmd_install_failed_sync": "Failed to synchronize project dependencies.",
   "cmd_install_err_missing_pyproject": "Could not find pyproject.toml at: {path}",
+  "cmd_install_arg_yes_help": "Disable interactive prompts by passing the --no-input flag to pip.",
 
   "cmd_uninstall_help": "Uninstalls Python packages from the environment and removes dependencies from pyproject.toml.",
   "cmd_uninstall_arg_packages_help": "One or more package names to uninstall.",

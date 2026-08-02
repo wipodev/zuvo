@@ -34,6 +34,11 @@ ARGS = [
         "action": "store_true",
         "help": "cmd_install_arg_dev_help",
     },
+    {
+        "flags": ["-y", "--yes"],
+        "action": "store_true",
+        "help": "cmd_install_arg_yes_help",
+    },
 ]
 
 
@@ -59,6 +64,7 @@ def run(
 
     packages: list[str] = getattr(args, "packages", []) or []
     is_dev: bool = getattr(args, "dev", False)
+    no_input: bool = getattr(args, "yes", False)
 
     out.print()
 
@@ -79,7 +85,10 @@ def run(
         )
 
         # Build pip command using --no-input for non-interactive execution
-        cmd = [sys.executable, "-m", "pip", "install", "--no-input"] + packages
+        cmd = [sys.executable, "-m", "pip", "install", "--no-input"]
+        if no_input:
+            cmd.append("--no-input")
+        cmd.extend(packages)
 
         out.print(f"[bold cyan]🛠️  {t('cmd_install_status_executing')}[/bold cyan]")
         out.print(Rule(style="dim"))
@@ -132,9 +141,14 @@ def run(
             )
             sys.exit(1)
 
-        cmd = [sys.executable, "-m", "pip", "install", "--no-input", "-e", "."]
+        cmd = [sys.executable, "-m", "pip", "install"]
+        if no_input:
+            cmd.append("--no-input")
+
         if is_dev:
-            cmd[-1] = ".[dev]"
+            cmd.extend(["-e", ".[dev]"])
+        else:
+            cmd.extend(["-e", "."])
 
         out.print(f"[bold cyan]🛠️  {t('cmd_install_status_syncing')}[/bold cyan]")
         out.print(Rule(style="dim"))
